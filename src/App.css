@@ -1,0 +1,53 @@
+.map {
+  background-color: white;
+  width: 500px;
+  height: 444px;
+  border-color: black;
+  display: inherit;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+}
+
+.nav {
+  display: flex;
+  background-color: #282A35;;
+  justify-content: center;
+  align-items: center;
+  height: 65px;
+}
+
+.App {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.navContainer {
+  min-width: 100%;
+}
+
+.mapContainer {
+  display: inherit;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* TANKS */
+
+.tank {
+  background: #5c6141;
+  width: 30px;
+  height: 30px;
+  margin-left: 130px;
+  margin-top: 414px;
+  position: absolute;
+}
+
+.enemy {
+  background: #414b61;
+  width: 30px;
+  height: 30px;
+  margin-left: 330px;
+  margin-top: 0;
+  position: absolute;
+}

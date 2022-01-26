@@ -1,0 +1,16 @@
+const playerMoveY = (state = 414, action) => {
+    switch (action.type) {
+        case 'MOVEUP':
+            if (state === 0) {
+                return state
+            } else return state - 2
+        case 'MOVEDOWN':
+            if (state === 414) {
+                return state
+            } else return state + 2
+        default:
+            return state;
+    }
+}
+
+export default playerMoveY
