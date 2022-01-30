@@ -21,59 +21,63 @@ const Map = () => {
     var time
     const move = (event) => {
         try {
+            if (event.key === 'CapsLock') {
+                return}} catch(err) {}
+        try {
             event.stopImmediatePropagation()
         } catch (err) {}
         try { 
             if(event.type !== "keyup") {
-                keysPressed[event.key] = true;
+                event.key.startsWith('Ar') ? keysPressed[event.key] = true : keysPressed[event.key.toLowerCase()] = true;
             }} catch(err) {}
         
-        if ((keysPressed['s'] && keysPressed['ArrowUp']) || (keysPressed['S'] && keysPressed['ArrowUp'])) {
+        if ((keysPressed['s'] && keysPressed['ArrowUp'])) {
             dispatch(playerMoveUp())
             dispatch(enemyMoveDown())
-        } else if ((keysPressed['s'] && keysPressed['ArrowDown']) || (keysPressed['S'] && keysPressed['ArrowDown'])) {
+            console.log('both');
+        } else if ((keysPressed['s'] && keysPressed['ArrowDown'])) {
             dispatch(playerMoveDown())
             dispatch(enemyMoveDown())
-        } else if ((keysPressed['s'] && keysPressed['ArrowLeft']) || (keysPressed['S'] && keysPressed['ArrowLeft'])) {
+        } else if ((keysPressed['s'] && keysPressed['ArrowLeft'])) {
             dispatch(playerMoveLeft())
             dispatch(enemyMoveDown())
-        } else if ((keysPressed['s'] && keysPressed['ArrowRight']) || (keysPressed['S'] && keysPressed['ArrowRight'])) {
+        } else if ((keysPressed['s'] && keysPressed['ArrowRight'])) {
             dispatch(playerMoveRight())
             dispatch(enemyMoveDown())
-        } else if ((keysPressed['a'] && keysPressed['ArrowDown']) || (keysPressed['A'] && keysPressed['ArrowDown'])) {
+        } else if ((keysPressed['a'] && keysPressed['ArrowDown'])) {
             dispatch(playerMoveDown())
             dispatch(enemyMoveLeft())
-        } else if ((keysPressed['a'] && keysPressed['ArrowUp']) || (keysPressed['A'] && keysPressed['ArrowUp'])) {
+        } else if ((keysPressed['a'] && keysPressed['ArrowUp'])) {
             dispatch(playerMoveUp())
             dispatch(enemyMoveLeft())
-        } else if ((keysPressed['a'] && keysPressed['ArrowLeft']) || (keysPressed['A'] && keysPressed['ArrowLeft'])) {
+        } else if ((keysPressed['a'] && keysPressed['ArrowLeft'])) {
             dispatch(playerMoveLeft())
             dispatch(enemyMoveLeft())
-        } else if ((keysPressed['a'] && keysPressed['ArrowRight']) || (keysPressed['A'] && keysPressed['ArrowRight'])) {
+        } else if ((keysPressed['a'] && keysPressed['ArrowRight'])) {
             dispatch(playerMoveRight())
             dispatch(enemyMoveLeft())
-        } else if ((keysPressed['w'] && keysPressed['ArrowUp']) || (keysPressed['W'] && keysPressed['ArrowUp'])) {
+        } else if ((keysPressed['w'] && keysPressed['ArrowUp'])) {
             dispatch(playerMoveUp())
             dispatch(enemyMoveUp())
-        } else if ((keysPressed['w'] && keysPressed['ArrowLeft']) || (keysPressed['W'] && keysPressed['ArrowLeft'])) {
+        } else if ((keysPressed['w'] && keysPressed['ArrowLeft'])) {
             dispatch(playerMoveLeft())
             dispatch(enemyMoveUp())
-        } else if ((keysPressed['w'] && keysPressed['ArrowRight']) || (keysPressed['W'] && keysPressed['ArrowRight'])) {
+        } else if ((keysPressed['w'] && keysPressed['ArrowRight'])) {
             dispatch(playerMoveRight())
             dispatch(enemyMoveUp())
-        } else if ((keysPressed['w'] && keysPressed['ArrowDown']) || (keysPressed['W'] && keysPressed['ArrowDown'])) {
+        } else if ((keysPressed['w'] && keysPressed['ArrowDown'])) {
             dispatch(playerMoveDown())
             dispatch(enemyMoveUp())
-        } else if ((keysPressed['d'] && keysPressed['ArrowUp']) || (keysPressed['D'] && keysPressed['ArrowUp'])) {
+        } else if ((keysPressed['d'] && keysPressed['ArrowUp'])) {
             dispatch(playerMoveUp())
             dispatch(enemyMoveRight())
-        } else if ((keysPressed['d'] && keysPressed['ArrowLeft']) || (keysPressed['D'] && keysPressed['ArrowLeft'])) {
+        } else if ((keysPressed['d'] && keysPressed['ArrowLeft'])) {
             dispatch(playerMoveLeft())
             dispatch(enemyMoveRight())
-        } else if ((keysPressed['d'] && keysPressed['ArrowRight']) || (keysPressed['D'] && keysPressed['ArrowRight'])) {
+        } else if ((keysPressed['d'] && keysPressed['ArrowRight'])) {
             dispatch(playerMoveRight())
             dispatch(enemyMoveRight())
-        } else if ((keysPressed['d'] && keysPressed['ArrowDown']) || (keysPressed['D'] && keysPressed['ArrowDown'])) {
+        } else if ((keysPressed['d'] && keysPressed['ArrowDown'])) {
             dispatch(playerMoveDown())
             dispatch(enemyMoveRight())
         } else if (keysPressed['s']) {
@@ -85,6 +89,7 @@ const Map = () => {
         } else if (keysPressed['w']) {
             dispatch(enemyMoveUp())
         } else if (keysPressed['ArrowUp']) {
+            console.log('up');
             dispatch(playerMoveUp())
         } else if (keysPressed['ArrowDown']) {
             dispatch(playerMoveDown())
@@ -93,8 +98,13 @@ const Map = () => {
         } else if (keysPressed['ArrowRight']) {
             dispatch(playerMoveRight())
         } else if (Object.keys(keysPressed.length === 0)) {
+            clearInterval(time)
+            time = undefined
+            console.log(time);
             return
         }
+        console.log(keysPressed);
+
     }
 
     
@@ -102,11 +112,11 @@ const Map = () => {
 
     document.addEventListener('keyup', (event) => {
         event.stopImmediatePropagation()
-        delete keysPressed[event.key];
+        try {delete keysPressed[event.key];} catch(error) {console.log(error);}
         console.log(keysPressed);
         console.log(time);
         if (!time) {
-            time = setInterval(move, 250)
+            time = setInterval(move, 50)
             console.log(time); 
         }
     });
