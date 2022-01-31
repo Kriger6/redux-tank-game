@@ -22,19 +22,21 @@ const Map = () => {
     const move = (event) => {
         try {
             if (event.key === 'CapsLock') {
-                return}} catch(err) {}
+                return }} catch(err) {}
         try {
             event.stopImmediatePropagation()
         } catch (err) {}
         try { 
             if(event.type !== "keyup") {
+                console.log("kobas");
+                clearInterval(time)
+                time = undefined
                 event.key.startsWith('Ar') ? keysPressed[event.key] = true : keysPressed[event.key.toLowerCase()] = true;
             }} catch(err) {}
         
         if ((keysPressed['s'] && keysPressed['ArrowUp'])) {
             dispatch(playerMoveUp())
             dispatch(enemyMoveDown())
-            console.log('both');
         } else if ((keysPressed['s'] && keysPressed['ArrowDown'])) {
             dispatch(playerMoveDown())
             dispatch(enemyMoveDown())
