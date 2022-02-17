@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useEffect, useRef} from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import {playerMoveLeft, 
     playerMoveRight, 
@@ -10,15 +10,22 @@ import {playerMoveLeft,
     enemyMoveUp} from '../../actions'
 
 const Map = () => {
-    const movePlayerX = useSelector(state => state.playerMoveX)
+    
+    const movePlayerX =  useSelector(state => state.playerMoveX)
     const movePlayerY = useSelector(state => state.playerMoveY)
     const moveEnemyX = useSelector(state => state.enemyMoveX)
     const moveEnemyY = useSelector(state => state.enemyMoveY)
-    // const state = useSelector(state => state)
-    const dispatch = useDispatch()
+    const state = useSelector(state => state)
 
-    let keysPressed = {}
-    var time
+    const dispatch = useDispatch()
+    var keysPressed = {}
+    var time 
+    const myStateRef = useRef(0);
+    myStateRef.current = state
+
+
+
+    // TANK MOVEMENT CONTROLS
     const move = (event) => {
         try {
             if (event.key === 'CapsLock') {
@@ -28,27 +35,51 @@ const Map = () => {
         } catch (err) {}
         try { 
             if(event.type !== "keyup") {
-                console.log("kobas");
                 clearInterval(time)
                 time = undefined
                 event.key.startsWith('Ar') ? keysPressed[event.key] = true : keysPressed[event.key.toLowerCase()] = true;
             }} catch(err) {}
-        
         if ((keysPressed['s'] && keysPressed['ArrowUp'])) {
+            if(Math.abs(myStateRef.current.enemyMoveY + 2 - myStateRef.current.playerMoveY) < 30 &&
+                Math.abs(myStateRef.current.enemyMoveX - myStateRef.current.playerMoveX) < 30 ) {
+                return
+            }
             dispatch(playerMoveUp())
             dispatch(enemyMoveDown())
         } else if ((keysPressed['s'] && keysPressed['ArrowDown'])) {
+            if (Math.abs(myStateRef.current.enemyMoveY + 2 - myStateRef.current.playerMoveY) < 30 &&
+                Math.abs(myStateRef.current.enemyMoveX - myStateRef.current.playerMoveX) < 30) {
+                return
+            }
             dispatch(playerMoveDown())
             dispatch(enemyMoveDown())
         } else if ((keysPressed['s'] && keysPressed['ArrowLeft'])) {
-            dispatch(playerMoveLeft())
-            dispatch(enemyMoveDown())
+            if (Math.abs(myStateRef.current.playerMoveX - 2 - myStateRef.current.enemyMoveX) >= 30 ||
+                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+                dispatch(playerMoveLeft())
+            }
+            if (Math.abs(myStateRef.current.enemyMoveY + 2 - myStateRef.current.playerMoveY) >= 30 ||
+                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
+                dispatch(enemyMoveDown())
+            } 
         } else if ((keysPressed['s'] && keysPressed['ArrowRight'])) {
-            dispatch(playerMoveRight())
-            dispatch(enemyMoveDown())
+            if (Math.abs(myStateRef.current.playerMoveX + 2 - myStateRef.current.enemyMoveX) >= 30 ||
+                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+                dispatch(playerMoveRight())
+            }
+            if (Math.abs(myStateRef.current.enemyMoveY + 2 - myStateRef.current.playerMoveY) >= 30 ||
+                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
+                dispatch(enemyMoveDown())
+            }
         } else if ((keysPressed['a'] && keysPressed['ArrowDown'])) {
-            dispatch(playerMoveDown())
-            dispatch(enemyMoveLeft())
+            if (Math.abs(myStateRef.current.enemyMoveX - 2 - myStateRef.current.playerMoveX) >= 30 ||
+                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+                    dispatch(enemyMoveLeft())
+            }
+            if (Math.abs(myStateRef.current.playerMoveY + 2 - myStateRef.current.enemyMoveY) >= 30 ||
+                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
+                dispatch(playerMoveDown())
+            }
         } else if ((keysPressed['a'] && keysPressed['ArrowUp'])) {
             dispatch(playerMoveUp())
             dispatch(enemyMoveLeft())
@@ -91,7 +122,6 @@ const Map = () => {
         } else if (keysPressed['w']) {
             dispatch(enemyMoveUp())
         } else if (keysPressed['ArrowUp']) {
-            console.log('up');
             dispatch(playerMoveUp())
         } else if (keysPressed['ArrowDown']) {
             dispatch(playerMoveDown())
@@ -102,26 +132,24 @@ const Map = () => {
         } else if (Object.keys(keysPressed.length === 0)) {
             clearInterval(time)
             time = undefined
-            console.log(time);
             return
         }
-        console.log(keysPressed);
-
     }
-
     
-    document.addEventListener('keydown', move)
-
-    document.addEventListener('keyup', (event) => {
+    // KEY UP DETECTION
+    const keyUp = (event) => {
         event.stopImmediatePropagation()
-        try {delete keysPressed[event.key];} catch(error) {console.log(error);}
-        console.log(keysPressed);
-        console.log(time);
+        try { delete keysPressed[event.key]; } catch (error) { console.log(error); }
         if (!time) {
             time = setInterval(move, 50)
-            console.log(time); 
         }
-    });
+    }
+    useEffect(() => {
+        document.addEventListener('keydown', move)
+        document.addEventListener('keyup', keyUp)
+
+    })
+        
 
 
     return (
