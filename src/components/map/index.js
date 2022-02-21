@@ -23,19 +23,59 @@ const Map = () => {
     const myStateRef = useRef(0);
     myStateRef.current = state
 
-    // const {playerMoveX, playerMoveY, enemyMoveX, enemyMoveY} = myStateRef.current
-
-    const checkPlayerX = () => {
-        if (Math.abs(myStateRef.current.playerMoveX + 2 - myStateRef.current.enemyMoveX) >= 30 ||
-            Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
-            return true
+    const checkPlayerX = (operator) => {
+        if(operator === "+") {
+            if (Math.abs(myStateRef.current.playerMoveX + 2 - myStateRef.current.enemyMoveX) >= 30 ||
+                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+                    return true
+                }
+        } else {
+            if (Math.abs(myStateRef.current.playerMoveX - 2 - myStateRef.current.enemyMoveX) >= 30 ||
+                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+                    return true
+                }
         }
     }
 
-    const checkPlayerY = () => {
-        if (Math.abs(myStateRef.current.playerMoveY + 2 - myStateRef.current.enemyMoveY) >= 30 ||
-            Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
-            return true
+    const checkPlayerY = (operator) => {
+        if (operator === "+") {
+            if (Math.abs(myStateRef.current.playerMoveY + 2 - myStateRef.current.enemyMoveY) >= 30 ||
+                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
+                    return true
+                }
+        } else {
+            if (Math.abs(myStateRef.current.playerMoveY - 2 - myStateRef.current.enemyMoveY) >= 30 ||
+                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
+                return true
+            }
+        }
+    }
+
+    const checkEnemyX = (operator) => {
+        if (operator === "+") {
+            if (Math.abs(myStateRef.current.enemyMoveX + 2 - myStateRef.current.playerMoveX) >= 30 ||
+                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+                    return true
+            }
+        } else {
+            if (Math.abs(myStateRef.current.enemyMoveX - 2 - myStateRef.current.playerMoveX) >= 30 ||
+                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+                    return true
+            }
+        }
+    }
+
+    const checkEnemyY = (operator) => {
+        if (operator === "+") {
+            if (Math.abs(myStateRef.current.enemyMoveY + 2 - myStateRef.current.playerMoveY) >= 30 ||
+                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
+                    return true
+            } 
+        } else {
+            if (Math.abs(myStateRef.current.enemyMoveY - 2 - myStateRef.current.playerMoveY) >= 30 ||
+                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
+                    return true
+            }
         }
     }
 
@@ -55,183 +95,147 @@ const Map = () => {
                 event.key.startsWith('Ar') ? keysPressed[event.key] = true : keysPressed[event.key.toLowerCase()] = true;
             }} catch(err) {}
         if ((keysPressed['s'] && keysPressed['ArrowUp'])) {
-            if(Math.abs(myStateRef.current.enemyMoveY + 2 - myStateRef.current.playerMoveY) < 30 &&
-                Math.abs(myStateRef.current.enemyMoveX - myStateRef.current.playerMoveX) < 30 ) {
-                return
+            if(checkPlayerY()) {
+                dispatch(playerMoveUp())
             }
-            dispatch(playerMoveUp())
-            dispatch(enemyMoveDown())
-        } else if ((keysPressed['s'] && keysPressed['ArrowDown'])) {
-            if (Math.abs(myStateRef.current.enemyMoveY + 2 - myStateRef.current.playerMoveY) >= 30 ||
-                Math.abs(myStateRef.current.enemyMoveX - myStateRef.current.playerMoveX) >= 30) {
+            if (checkEnemyY("+")) {
                 dispatch(enemyMoveDown())
             }
-            if (Math.abs(myStateRef.current.playerMoveY + 2 - myStateRef.current.enemyMoveY) >=30 ||
-                Math.abs(myStateRef.current.enemyMoveX - myStateRef.current.playerMoveX) >=30) {
+        } else if ((keysPressed['s'] && keysPressed['ArrowDown'])) {
+            if (checkEnemyY("+")) {
+                dispatch(enemyMoveDown())
+            }
+            if (checkPlayerY("+")) {
                 dispatch(playerMoveDown())
             }
         } else if ((keysPressed['s'] && keysPressed['ArrowLeft'])) {
-            if (Math.abs(myStateRef.current.playerMoveX - 2 - myStateRef.current.enemyMoveX) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+            if (checkPlayerX()) {
                 dispatch(playerMoveLeft())
             }
-            if (Math.abs(myStateRef.current.enemyMoveY + 2 - myStateRef.current.playerMoveY) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
+            if (checkEnemyY("+")) {
                 dispatch(enemyMoveDown())
             } 
         } else if ((keysPressed['s'] && keysPressed['ArrowRight'])) {
-            if (Math.abs(myStateRef.current.playerMoveX + 2 - myStateRef.current.enemyMoveX) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+            if (checkPlayerX("+")) {
                 dispatch(playerMoveRight())
             }
-            if (Math.abs(myStateRef.current.enemyMoveY + 2 - myStateRef.current.playerMoveY) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
+            if (checkEnemyY("+")) {
                 dispatch(enemyMoveDown())
             }
         } else if ((keysPressed['a'] && keysPressed['ArrowDown'])) {
-            if (Math.abs(myStateRef.current.enemyMoveX - 2 - myStateRef.current.playerMoveX) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+            if (checkEnemyX()) {
                     dispatch(enemyMoveLeft())
             }
-            if (Math.abs(myStateRef.current.playerMoveY + 2 - myStateRef.current.enemyMoveY) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
+            if (checkPlayerY("+")) {
                 dispatch(playerMoveDown())
             }
         } else if ((keysPressed['a'] && keysPressed['ArrowUp'])) {
-            if (Math.abs(myStateRef.current.enemyMoveX - 2 - myStateRef.current.playerMoveX) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+            if (checkEnemyX()) {
                 dispatch(enemyMoveLeft())
             }
-            if (Math.abs(myStateRef.current.playerMoveY - 2 - myStateRef.current.enemyMoveY) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
+            if (checkPlayerY()) {
                 dispatch(playerMoveUp())
             }
         } else if ((keysPressed['a'] && keysPressed['ArrowLeft'])) {
-            if (Math.abs(myStateRef.current.playerMoveX - 2 - myStateRef.current.enemyMoveX) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+            if (checkPlayerX()) {
                 dispatch(playerMoveLeft())
             }
-            if (Math.abs(myStateRef.current.enemyMoveX - 2 - myStateRef.current.playerMoveX) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+            if (checkEnemyX()) {
                 dispatch(enemyMoveLeft())
             }
         } else if ((keysPressed['a'] && keysPressed['ArrowRight'])) {
-            if (Math.abs(myStateRef.current.playerMoveX + 2 - myStateRef.current.enemyMoveX) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+            if (checkPlayerX("+")) {
                 dispatch(playerMoveRight())
             }
-            if (Math.abs(myStateRef.current.enemyMoveX - 2 - myStateRef.current.playerMoveX) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+            if (checkEnemyX()) {
                     dispatch(enemyMoveLeft())
             }
         } else if ((keysPressed['w'] && keysPressed['ArrowUp'])) {
-            if (Math.abs(myStateRef.current.playerMoveY - 2 - myStateRef.current.enemyMoveY) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
+            if (checkPlayerY()) {
                 dispatch(playerMoveUp())
             }
-            if (Math.abs(myStateRef.current.enemyMoveY - 2 - myStateRef.current.playerMoveY) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
+            if (checkEnemyY()) {
                     dispatch(enemyMoveUp())
             }
         } else if ((keysPressed['w'] && keysPressed['ArrowLeft'])) {
-            if (Math.abs(myStateRef.current.playerMoveX - 2 - myStateRef.current.enemyMoveX) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+            if (checkPlayerX()) {
                 dispatch(playerMoveLeft())
             }
-            if (Math.abs(myStateRef.current.enemyMoveY - 2 - myStateRef.current.playerMoveY) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
+            if (checkEnemyY()) {
                 dispatch(enemyMoveUp())
             }
         } else if ((keysPressed['w'] && keysPressed['ArrowRight'])) {
-            if (Math.abs(myStateRef.current.playerMoveX + 2 - myStateRef.current.enemyMoveX) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+            if (checkPlayerX("+")) {
                 dispatch(playerMoveRight())
             }
-            if (Math.abs(myStateRef.current.enemyMoveY - 2 - myStateRef.current.playerMoveY) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
+            if (checkEnemyY()) {
                 dispatch(enemyMoveUp())
             }
         } else if ((keysPressed['w'] && keysPressed['ArrowDown'])) {
-            if (Math.abs(myStateRef.current.playerMoveY + 2 - myStateRef.current.enemyMoveY) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
+            if (checkPlayerY("+")) {
                 dispatch(playerMoveDown())
             }
-            if (Math.abs(myStateRef.current.enemyMoveY - 2 - myStateRef.current.playerMoveY) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
+            if (checkEnemyY()) {
                 dispatch(enemyMoveUp())
             }
         } else if ((keysPressed['d'] && keysPressed['ArrowUp'])) {
-            if (Math.abs(myStateRef.current.enemyMoveX + 2 - myStateRef.current.playerMoveX) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+            if (checkEnemyX("+")) {
                 dispatch(enemyMoveRight())
             }
-            if (Math.abs(myStateRef.current.playerMoveY - 2 - myStateRef.current.enemyMoveY) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
+            if (checkPlayerY()) {
                 dispatch(playerMoveUp())
             }
         } else if ((keysPressed['d'] && keysPressed['ArrowLeft'])) {
-            if (Math.abs(myStateRef.current.playerMoveX - 2 - myStateRef.current.enemyMoveX) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+            if (checkPlayerX()) {
                 dispatch(playerMoveLeft())
             }
-            if (Math.abs(myStateRef.current.enemyMoveX + 2 - myStateRef.current.playerMoveX) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+            if (checkEnemyX("+")) {
                 dispatch(enemyMoveRight())
             }
         } else if ((keysPressed['d'] && keysPressed['ArrowRight'])) {
-            if (Math.abs(myStateRef.current.playerMoveX + 2 - myStateRef.current.enemyMoveX) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+            if (checkPlayerX("+")) {
                 dispatch(playerMoveRight())
             }
-            if (Math.abs(myStateRef.current.enemyMoveX + 2 - myStateRef.current.playerMoveX) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+            if (checkEnemyX("+")) {
                     dispatch(enemyMoveRight())
             }
         } else if ((keysPressed['d'] && keysPressed['ArrowDown'])) {
-            if (Math.abs(myStateRef.current.enemyMoveX + 2 - myStateRef.current.playerMoveX) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+            if (checkEnemyY("+")) {
                 dispatch(enemyMoveRight())
             }
-            if (Math.abs(myStateRef.current.playerMoveY + 2 - myStateRef.current.enemyMoveY) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
+            if (checkPlayerY("+")) {
                 dispatch(playerMoveDown())
             }
         } else if (keysPressed['s']) {
-            if (Math.abs(myStateRef.current.enemyMoveY + 2 - myStateRef.current.playerMoveY) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
+            if (checkEnemyY("+")) {
                 dispatch(enemyMoveDown())
             }
         } else if (keysPressed['d']) {
-            if (Math.abs(myStateRef.current.enemyMoveX + 2 - myStateRef.current.playerMoveX) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+            if (checkEnemyX("+")) {
                     dispatch(enemyMoveRight())
             }
         } else if (keysPressed['a']) {
-            if (Math.abs(myStateRef.current.enemyMoveX - 2 - myStateRef.current.playerMoveX) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+            if (checkEnemyX()) {
                     dispatch(enemyMoveLeft())
             }
         } else if (keysPressed['w']) {
-            if (Math.abs(myStateRef.current.enemyMoveY - 2 - myStateRef.current.playerMoveY) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
+            if (checkEnemyY()) {
                 dispatch(enemyMoveUp())
             }
         } else if (keysPressed['ArrowUp']) {
-            if (Math.abs(myStateRef.current.playerMoveY - 2 - myStateRef.current.enemyMoveY) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
+            if (checkPlayerY()) {
                 dispatch(playerMoveUp())
             }
         } else if (keysPressed['ArrowDown']) {
-            if (checkPlayerY()) {
+            if (checkPlayerY("+")) {
                     dispatch(playerMoveDown())
             }
         } else if (keysPressed['ArrowLeft']) {
-            if (Math.abs(myStateRef.current.playerMoveX - 2 - myStateRef.current.enemyMoveX) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
+            if (checkPlayerX()) {
                     dispatch(playerMoveLeft())
             }
         } else if (keysPressed['ArrowRight']) {
-            if (checkPlayerX()) {
+            if (checkPlayerX("+")) {
                     dispatch(playerMoveRight())
             }
         } else if (Object.keys(keysPressed.length === 0)) {
