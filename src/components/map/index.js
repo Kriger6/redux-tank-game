@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import {playerMoveLeft, 
     playerMoveRight, 
@@ -17,11 +17,16 @@ const Map = () => {
     const moveEnemyY = useSelector(state => state.enemyMoveY)
     const state = useSelector(state => state)
 
+    const [playerRotation, setPlayerRotation] = useState("0deg")
+    const [enemyRotation, setEnemyRotation] = useState("180deg")
+
     const dispatch = useDispatch()
     var keysPressed = {}
     var time 
     const myStateRef = useRef(0);
     myStateRef.current = state
+
+
 
     const checkPlayerX = (operator) => {
         if(operator === "+") {
@@ -81,6 +86,8 @@ const Map = () => {
 
 
     // TANK MOVEMENT CONTROLS AND COLLISION DETECTION
+
+    
     const move = (event) => {
         try {
             if (event.key === 'CapsLock') {
@@ -210,34 +217,42 @@ const Map = () => {
             if (checkEnemyY("+")) {
                 dispatch(enemyMoveDown())
             }
+            setEnemyRotation("180deg")
         } else if (keysPressed['d']) {
             if (checkEnemyX("+")) {
                     dispatch(enemyMoveRight())
             }
+            setEnemyRotation("90deg")
         } else if (keysPressed['a']) {
             if (checkEnemyX()) {
                     dispatch(enemyMoveLeft())
             }
+            setEnemyRotation("270deg")
         } else if (keysPressed['w']) {
             if (checkEnemyY()) {
                 dispatch(enemyMoveUp())
             }
+            setEnemyRotation("0deg")
         } else if (keysPressed['ArrowUp']) {
             if (checkPlayerY()) {
                 dispatch(playerMoveUp())
             }
+            setPlayerRotation("0deg")
         } else if (keysPressed['ArrowDown']) {
             if (checkPlayerY("+")) {
                     dispatch(playerMoveDown())
             }
+            setPlayerRotation("180deg")
         } else if (keysPressed['ArrowLeft']) {
             if (checkPlayerX()) {
                     dispatch(playerMoveLeft())
             }
+            setPlayerRotation("270deg")
         } else if (keysPressed['ArrowRight']) {
             if (checkPlayerX("+")) {
                     dispatch(playerMoveRight())
             }
+            setPlayerRotation("90deg")
         } else if (Object.keys(keysPressed.length === 0)) {
             clearInterval(time)
             time = undefined
@@ -256,7 +271,7 @@ const Map = () => {
     useEffect(() => {
         document.addEventListener('keydown', move)
         document.addEventListener('keyup', keyUp)
-
+        
     })
         
 
@@ -264,11 +279,11 @@ const Map = () => {
     return (
         <div className='mapContainer'>
             <div className='map'>
-                <div className='tank' style={{marginLeft: `${movePlayerX}px`, marginTop: `${movePlayerY}px`}}  >
-                    
+                <div className='tank' style={{marginLeft: `${movePlayerX}px`, marginTop: `${movePlayerY}px`, transform: `rotate(${playerRotation})`}}  >
+                    <div className='gun'></div>
                 </div>
-                <div className='enemy' style={{marginLeft: `${moveEnemyX}px`, marginTop: `${moveEnemyY}px`}}  >
-
+                <div className='enemy' style={{marginLeft: `${moveEnemyX}px`, marginTop: `${moveEnemyY}px`, transform: `rotate(${enemyRotation})`}}  >
+                    <div className='gun'></div>
                 </div>
             </div>
         </div>
