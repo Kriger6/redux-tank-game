@@ -59,3 +59,28 @@
   margin: auto;
   margin-top: -3px;
 }
+
+.base1 {
+  background-color: aqua;
+  width: 30px;
+  height: 30px;
+  margin-left: 223px;
+  margin-top: 414px;
+  position: absolute
+}
+
+.base2 {
+  background-color: brown;
+  width: 30px;
+  height: 30px;
+  margin-left: 223px;
+  position: absolute;
+}
+
+.shell {
+  background-color: red;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin: auto;
+}

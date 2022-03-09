@@ -84,6 +84,11 @@ const Map = () => {
         }
     }
 
+    // SHOOTING SHELLS
+    
+    const shoot = (event) => {
+        console.log(event, "shoot");
+    }
 
     // TANK MOVEMENT CONTROLS AND COLLISION DETECTION
 
@@ -108,6 +113,8 @@ const Map = () => {
             if (checkEnemyY("+")) {
                 dispatch(enemyMoveDown())
             }
+            setPlayerRotation("0deg")
+            setEnemyRotation("180deg")
         } else if ((keysPressed['s'] && keysPressed['ArrowDown'])) {
             if (checkEnemyY("+")) {
                 dispatch(enemyMoveDown())
@@ -115,13 +122,17 @@ const Map = () => {
             if (checkPlayerY("+")) {
                 dispatch(playerMoveDown())
             }
+            setPlayerRotation("180deg")
+            setEnemyRotation("180deg")
         } else if ((keysPressed['s'] && keysPressed['ArrowLeft'])) {
             if (checkPlayerX()) {
                 dispatch(playerMoveLeft())
             }
             if (checkEnemyY("+")) {
                 dispatch(enemyMoveDown())
-            } 
+            }
+            setPlayerRotation("270deg")
+            setEnemyRotation("180deg") 
         } else if ((keysPressed['s'] && keysPressed['ArrowRight'])) {
             if (checkPlayerX("+")) {
                 dispatch(playerMoveRight())
@@ -129,6 +140,8 @@ const Map = () => {
             if (checkEnemyY("+")) {
                 dispatch(enemyMoveDown())
             }
+            setPlayerRotation("90deg")
+            setEnemyRotation("180deg")
         } else if ((keysPressed['a'] && keysPressed['ArrowDown'])) {
             if (checkEnemyX()) {
                     dispatch(enemyMoveLeft())
@@ -136,6 +149,8 @@ const Map = () => {
             if (checkPlayerY("+")) {
                 dispatch(playerMoveDown())
             }
+            setPlayerRotation("180deg")
+            setEnemyRotation("270deg")
         } else if ((keysPressed['a'] && keysPressed['ArrowUp'])) {
             if (checkEnemyX()) {
                 dispatch(enemyMoveLeft())
@@ -143,6 +158,8 @@ const Map = () => {
             if (checkPlayerY()) {
                 dispatch(playerMoveUp())
             }
+            setPlayerRotation("0deg")
+            setEnemyRotation("270deg")
         } else if ((keysPressed['a'] && keysPressed['ArrowLeft'])) {
             if (checkPlayerX()) {
                 dispatch(playerMoveLeft())
@@ -150,6 +167,8 @@ const Map = () => {
             if (checkEnemyX()) {
                 dispatch(enemyMoveLeft())
             }
+            setEnemyRotation("270deg")
+            setPlayerRotation("270deg")
         } else if ((keysPressed['a'] && keysPressed['ArrowRight'])) {
             if (checkPlayerX("+")) {
                 dispatch(playerMoveRight())
@@ -157,6 +176,8 @@ const Map = () => {
             if (checkEnemyX()) {
                     dispatch(enemyMoveLeft())
             }
+            setEnemyRotation("270deg")
+            setPlayerRotation("90deg")
         } else if ((keysPressed['w'] && keysPressed['ArrowUp'])) {
             if (checkPlayerY()) {
                 dispatch(playerMoveUp())
@@ -164,6 +185,8 @@ const Map = () => {
             if (checkEnemyY()) {
                     dispatch(enemyMoveUp())
             }
+            setEnemyRotation("0deg")
+            setPlayerRotation("0deg")
         } else if ((keysPressed['w'] && keysPressed['ArrowLeft'])) {
             if (checkPlayerX()) {
                 dispatch(playerMoveLeft())
@@ -171,6 +194,8 @@ const Map = () => {
             if (checkEnemyY()) {
                 dispatch(enemyMoveUp())
             }
+            setEnemyRotation("0deg")
+            setPlayerRotation("270deg")
         } else if ((keysPressed['w'] && keysPressed['ArrowRight'])) {
             if (checkPlayerX("+")) {
                 dispatch(playerMoveRight())
@@ -178,6 +203,8 @@ const Map = () => {
             if (checkEnemyY()) {
                 dispatch(enemyMoveUp())
             }
+            setEnemyRotation("0deg")
+            setPlayerRotation("90deg")
         } else if ((keysPressed['w'] && keysPressed['ArrowDown'])) {
             if (checkPlayerY("+")) {
                 dispatch(playerMoveDown())
@@ -185,6 +212,8 @@ const Map = () => {
             if (checkEnemyY()) {
                 dispatch(enemyMoveUp())
             }
+            setEnemyRotation("0deg")
+            setPlayerRotation("180deg")
         } else if ((keysPressed['d'] && keysPressed['ArrowUp'])) {
             if (checkEnemyX("+")) {
                 dispatch(enemyMoveRight())
@@ -192,6 +221,8 @@ const Map = () => {
             if (checkPlayerY()) {
                 dispatch(playerMoveUp())
             }
+            setEnemyRotation("90deg")
+            setPlayerRotation("0deg")
         } else if ((keysPressed['d'] && keysPressed['ArrowLeft'])) {
             if (checkPlayerX()) {
                 dispatch(playerMoveLeft())
@@ -199,6 +230,8 @@ const Map = () => {
             if (checkEnemyX("+")) {
                 dispatch(enemyMoveRight())
             }
+            setEnemyRotation("90deg")
+            setPlayerRotation("270deg")
         } else if ((keysPressed['d'] && keysPressed['ArrowRight'])) {
             if (checkPlayerX("+")) {
                 dispatch(playerMoveRight())
@@ -206,6 +239,8 @@ const Map = () => {
             if (checkEnemyX("+")) {
                     dispatch(enemyMoveRight())
             }
+            setEnemyRotation("90deg")
+            setPlayerRotation("90deg")
         } else if ((keysPressed['d'] && keysPressed['ArrowDown'])) {
             if (checkEnemyY("+")) {
                 dispatch(enemyMoveRight())
@@ -213,6 +248,8 @@ const Map = () => {
             if (checkPlayerY("+")) {
                 dispatch(playerMoveDown())
             }
+            setEnemyRotation("90deg")
+            setPlayerRotation("180deg")
         } else if (keysPressed['s']) {
             if (checkEnemyY("+")) {
                 dispatch(enemyMoveDown())
@@ -277,14 +314,19 @@ const Map = () => {
 
 
     return (
-        <div className='mapContainer'>
+        <div className='mapContainer' onKeyPress={shoot()}>
             <div className='map'>
                 <div className='tank' style={{marginLeft: `${movePlayerX}px`, marginTop: `${movePlayerY}px`, transform: `rotate(${playerRotation})`}}  >
-                    <div className='gun'></div>
+                    <div className='gun'>
+                        <div className='shell' ></div>
+                    </div>
                 </div>
                 <div className='enemy' style={{marginLeft: `${moveEnemyX}px`, marginTop: `${moveEnemyY}px`, transform: `rotate(${enemyRotation})`}}  >
                     <div className='gun'></div>
                 </div>
+                <div className='base1' style={{}}></div>
+                <div className='base2' style={{}}></div>
+
             </div>
         </div>
     )
