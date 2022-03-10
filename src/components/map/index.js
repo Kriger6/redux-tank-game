@@ -20,6 +20,8 @@ const Map = () => {
     const [playerRotation, setPlayerRotation] = useState("0deg")
     const [enemyRotation, setEnemyRotation] = useState("180deg")
 
+    const [visible, setVisibility] = useState(false)
+
     const dispatch = useDispatch()
     var keysPressed = {}
     var time 
@@ -86,9 +88,7 @@ const Map = () => {
 
     // SHOOTING SHELLS
     
-    const shoot = (event) => {
-        console.log(event, "shoot");
-    }
+    
 
     // TANK MOVEMENT CONTROLS AND COLLISION DETECTION
 
@@ -106,6 +106,12 @@ const Map = () => {
                 time = undefined
                 event.key.startsWith('Ar') ? keysPressed[event.key] = true : keysPressed[event.key.toLowerCase()] = true;
             }} catch(err) {}
+        
+        try {
+            if (event.key === "Enter") {
+                setVisibility(true)
+            }
+        } catch(err) {}
         if ((keysPressed['s'] && keysPressed['ArrowUp'])) {
             if(checkPlayerY()) {
                 dispatch(playerMoveUp())
@@ -314,11 +320,14 @@ const Map = () => {
 
 
     return (
-        <div className='mapContainer' onKeyPress={shoot()}>
+        <div className='mapContainer'>
             <div className='map'>
                 <div className='tank' style={{marginLeft: `${movePlayerX}px`, marginTop: `${movePlayerY}px`, transform: `rotate(${playerRotation})`}}  >
                     <div className='gun'>
-                        <div className='shell' ></div>
+                        <div className='playerShell' style={{
+                            visibility: visible === true ? "visible" : "hidden", 
+                            animationPlayState: visible === true ? "running" : "paused"}}>
+                        </div>
                     </div>
                 </div>
                 <div className='enemy' style={{marginLeft: `${moveEnemyX}px`, marginTop: `${moveEnemyY}px`, transform: `rotate(${enemyRotation})`}}  >

@@ -77,10 +77,23 @@
   position: absolute;
 }
 
-.shell {
+.playerShell {
   background-color: red;
   width: 8px;
   height: 8px;
   border-radius: 50%;
   margin: auto;
+  position: relative;
+  animation-name: shoot;
+  animation-duration: 1.5s;
+  animation-timing-function: linear;
+  animation-play-state: paused;
+}
+
+@keyframes shoot {
+  0% {top: 0;}
+  25% {top: -100px}
+  50% {top: -250px}
+  75% {top: -350px}
+  100% {top: -440px}
 }
