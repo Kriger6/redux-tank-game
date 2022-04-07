@@ -20,14 +20,30 @@ const Map = () => {
     const [playerRotation, setPlayerRotation] = useState("0deg")
     const [enemyRotation, setEnemyRotation] = useState("180deg")
 
-    const [visible, setVisibility] = useState(false)
+    const [playerShell, setPlayerShell] = useState()
+    const [playerShellFlying, setPlayerShellFlying] = useState(false)
+    const [currentShellPosition, setCurrentShellPosition] = useState()
+    // const [playerShellDirection, setPlayerShellDirection] = useState({})
 
-    const dispatch = useDispatch()
-    var keysPressed = {}
+    var playerShellCount = 0
     var time 
+    var keysPressed = {}
+    const dispatch = useDispatch()
+
+
+    // REFS
     const myStateRef = useRef(0);
     myStateRef.current = state
 
+    const playerShellRef = useRef()
+    const shellFlyingRef = useRef(false)
+    shellFlyingRef.current = playerShellFlying
+    const currentShellPositionRef = useRef()
+    currentShellPositionRef.current = currentShellPosition
+
+
+
+    // COLLISION ENGINE
 
 
     const checkPlayerX = (operator) => {
@@ -86,8 +102,6 @@ const Map = () => {
         }
     }
 
-    // SHOOTING SHELLS
-    
     
 
     // TANK MOVEMENT CONTROLS AND COLLISION DETECTION
@@ -108,10 +122,19 @@ const Map = () => {
             }} catch(err) {}
         
         try {
-            if (event.key === "Enter") {
-                setVisibility(true)
+            if (event.key === 'x') {
+                if (shellFlyingRef.current === true) {
+                    return
+                } else {
+                    setCurrentShellPosition(myStateRef.current)
+                }
+                console.log("kobas");
+                setInterval(fire, 4)
             }
-        } catch(err) {}
+        } catch(err) {console.log(err);}
+
+        // MOVEMENT CONTROLS
+            
         if ((keysPressed['s'] && keysPressed['ArrowUp'])) {
             if(checkPlayerY()) {
                 dispatch(playerMoveUp())
@@ -316,19 +339,28 @@ const Map = () => {
         document.addEventListener('keyup', keyUp)
         
     })
-        
 
+    // const ShootUp = (tank) => {
+    //     console.log(currentShellPositionRef.current.eval());
+    // }
+        
+    // FIRING SHELLS 
+    const fire = () => {
+        playerShellRef.current = (<div className='playerShell' style={{
+            marginLeft: currentShellPositionRef.current.playerMoveX + 11,
+            marginTop: currentShellPositionRef.current.playerMoveY - 10 - playerShellCount
+        }}></div>)
+        setPlayerShell(playerShellRef.current)
+        setPlayerShellFlying(true)
+        playerShellCount += 3
+    }
 
     return (
         <div className='mapContainer'>
             <div className='map'>
+                <div>{playerShell}</div>
                 <div className='tank' style={{marginLeft: `${movePlayerX}px`, marginTop: `${movePlayerY}px`, transform: `rotate(${playerRotation})`}}  >
-                    <div className='gun'>
-                        <div className='playerShell' style={{
-                            visibility: visible === true ? "visible" : "hidden", 
-                            animationPlayState: visible === true ? "running" : "paused"}}>
-                        </div>
-                    </div>
+                    <div className='gun'></div>
                 </div>
                 <div className='enemy' style={{marginLeft: `${moveEnemyX}px`, marginTop: `${moveEnemyY}px`, transform: `rotate(${enemyRotation})`}}  >
                     <div className='gun'></div>
