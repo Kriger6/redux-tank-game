@@ -23,7 +23,6 @@ const Map = () => {
     const [playerShell, setPlayerShell] = useState()
     const [playerShellFlying, setPlayerShellFlying] = useState(false)
     const [currentShellPosition, setCurrentShellPosition] = useState()
-    // const [playerShellDirection, setPlayerShellDirection] = useState({})
 
     var playerShellCount = 0
     var time 
@@ -40,6 +39,8 @@ const Map = () => {
     shellFlyingRef.current = playerShellFlying
     const currentShellPositionRef = useRef()
     currentShellPositionRef.current = currentShellPosition
+    const currentPlayerRotationRef = useRef("0deg")
+    currentPlayerRotationRef.current = playerRotation
 
 
 
@@ -129,7 +130,7 @@ const Map = () => {
                     setCurrentShellPosition(myStateRef.current)
                 }
                 console.log("kobas");
-                setInterval(fire, 4)
+                setInterval(() => {fire("player")}, 4)
             }
         } catch(err) {console.log(err);}
 
@@ -340,16 +341,40 @@ const Map = () => {
         
     })
 
-    // const ShootUp = (tank) => {
-    //     console.log(currentShellPositionRef.current.eval());
-    // }
-        
+    const shootUp = tank => {
+        return {
+            marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
+            marginTop: currentShellPositionRef.current[tank + "MoveY"] - playerShellCount
+        }
+    }
+
+    const shootDown = tank => {
+        return {
+            marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
+            marginTop: currentShellPositionRef.current[tank + "MoveY"] + 30 + playerShellCount,
+            transform: `rotate(180deg)`
+        }
+    }
+
+    const shootRight = tank => {
+        return {
+            marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 30 + playerShellCount,
+            marginTop: currentShellPositionRef.current[tank + "MoveY"] + 11,
+            transform: `rotate(90deg)`
+        }
+    }
+
+    const shootLeft = tank => {
+        return {
+            marginLeft: currentShellPositionRef.current[tank + "MoveX"] - playerShellCount,
+            marginTop: currentShellPositionRef.current[tank + "MoveY"] + 11,
+            transform: `rotate(270deg)`
+        }
+    }
+
     // FIRING SHELLS 
-    const fire = () => {
-        playerShellRef.current = (<div className='playerShell' style={{
-            marginLeft: currentShellPositionRef.current.playerMoveX + 11,
-            marginTop: currentShellPositionRef.current.playerMoveY - 10 - playerShellCount
-        }}></div>)
+    const fire = (tank) => {
+        playerShellRef.current = (<div className='playerShell' style={shootUp(tank)}></div>)
         setPlayerShell(playerShellRef.current)
         setPlayerShellFlying(true)
         playerShellCount += 3
