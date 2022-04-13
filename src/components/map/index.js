@@ -20,9 +20,10 @@ const Map = () => {
     const [playerRotation, setPlayerRotation] = useState("0deg")
     const [enemyRotation, setEnemyRotation] = useState("180deg")
 
-    const [playerShell, setPlayerShell] = useState()
-    const [playerShellFlying, setPlayerShellFlying] = useState(false)
     const [currentShellPosition, setCurrentShellPosition] = useState()
+    const [playerShell, setPlayerShell] = useState()
+    const [enemyShell, setEnemyShell] = useState()
+    const [playerShellFlying, setPlayerShellFlying] = useState(false)
 
     var playerShellCount = 0
     var time 
@@ -122,17 +123,30 @@ const Map = () => {
                 event.key.startsWith('Ar') ? keysPressed[event.key] = true : keysPressed[event.key.toLowerCase()] = true;
             }} catch(err) {}
         
+        // FIRING CONTROLS
+
         try {
-            if (event.key === 'x') {
+            if (event.key === 'Space') {
                 if (shellFlyingRef.current === true) {
                     return
                 } else {
                     setCurrentShellPosition(myStateRef.current)
                 }
-                console.log("kobas");
-                setInterval(() => {fire("player")}, 4)
+                preFire("player")
+                setTimeout(() => fire("player"), 4)
             }
         } catch(err) {console.log(err);}
+        try {
+            if (event.key === 'Enter') {
+                if (shellFlyingRef.current === true) {
+                    return
+                } else {
+                    setCurrentShellPosition(myStateRef.current)
+                }
+                preFire("enemy")
+                setTimeout(() => fire("enemy"), 4)
+            }
+        } catch (err) { console.log(err); }
 
         // MOVEMENT CONTROLS
             
@@ -337,53 +351,66 @@ const Map = () => {
     }
     useEffect(() => {
         document.addEventListener('keydown', move)
-        document.addEventListener('keyup', keyUp)
-        
+        document.addEventListener('keyup', keyUp)        
     })
 
-    const shootUp = tank => {
-        return {
-            marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
-            marginTop: currentShellPositionRef.current[tank + "MoveY"] - playerShellCount
-        }
-    }
 
-    const shootDown = tank => {
-        return {
-            marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
-            marginTop: currentShellPositionRef.current[tank + "MoveY"] + 30 + playerShellCount,
-            transform: `rotate(180deg)`
-        }
-    }
+    // SHOOTING DIRECTIONS 
 
-    const shootRight = tank => {
-        return {
-            marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 30 + playerShellCount,
-            marginTop: currentShellPositionRef.current[tank + "MoveY"] + 11,
-            transform: `rotate(90deg)`
+    const shootDirection = tank => {
+        if (currentPlayerRotationRef.current === "0deg") {
+            return { 
+                marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
+                marginTop: currentShellPositionRef.current[tank + "MoveY"] - 420,
+                width: "8px"
+            }
+            
+        } else if (currentPlayerRotationRef.current === "180deg") {
+            return {
+                marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
+                marginTop: currentShellPositionRef.current[tank + "MoveY"] + 420,
+                transform: `rotate(180deg)`
+            }
+            
+        } else if (currentPlayerRotationRef.current === "90deg") {
+            return {
+                marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 420,
+                marginTop: currentShellPositionRef.current[tank + "MoveY"] + 11,
+                transform: `rotate(90deg)`
+            }
+        } else if (currentPlayerRotationRef.current === "270deg") {
+            return {
+                marginLeft: currentShellPositionRef.current[tank + "MoveX"] - 420,
+                marginTop: currentShellPositionRef.current[tank + "MoveY"] + 11,
+                transform: `rotate(270deg)`
+            }
         }
     }
-
-    const shootLeft = tank => {
-        return {
-            marginLeft: currentShellPositionRef.current[tank + "MoveX"] - playerShellCount,
-            marginTop: currentShellPositionRef.current[tank + "MoveY"] + 11,
-            transform: `rotate(270deg)`
-        }
-    }
+    
 
     // FIRING SHELLS 
+
+    const preFire = (tank) => {
+        setPlayerShell(<div className='playerShell' style={{
+            marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
+            marginTop: currentShellPositionRef.current[tank + "MoveY"],
+            width: "8px"
+        }}></div>)
+    }
+
+
     const fire = (tank) => {
-        playerShellRef.current = (<div className='playerShell' style={shootUp(tank)}></div>)
+        playerShellRef.current = (<div  className='playerShell' style={shootDirection(tank)}></div>)
         setPlayerShell(playerShellRef.current)
         setPlayerShellFlying(true)
-        playerShellCount += 3
+
     }
 
     return (
         <div className='mapContainer'>
             <div className='map'>
                 <div>{playerShell}</div>
+                <div>{enemyShell}</div>
                 <div className='tank' style={{marginLeft: `${movePlayerX}px`, marginTop: `${movePlayerY}px`, transform: `rotate(${playerRotation})`}}  >
                     <div className='gun'></div>
                 </div>

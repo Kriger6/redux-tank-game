@@ -80,9 +80,12 @@
 .playerShell {
   background-color: rgb(3, 1, 1);
   width: 8px;
-  height: 8px;
+  height: 15px;
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
   margin: auto;
+  transition: margin-top 0.7s, margin-left 0.7s;
+  transition-timing-function: linear;
 }
+
 
