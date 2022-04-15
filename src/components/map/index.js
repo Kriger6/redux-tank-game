@@ -36,12 +36,15 @@ const Map = () => {
     myStateRef.current = state
 
     const playerShellRef = useRef()
+    const enemyShellRef = useRef()
     const shellFlyingRef = useRef(false)
     shellFlyingRef.current = playerShellFlying
     const currentShellPositionRef = useRef()
     currentShellPositionRef.current = currentShellPosition
     const currentPlayerRotationRef = useRef("0deg")
     currentPlayerRotationRef.current = playerRotation
+    const currentEnemyRotationRef = useRef("180deg")
+    currentEnemyRotationRef.current = enemyRotation
 
 
 
@@ -126,7 +129,7 @@ const Map = () => {
         // FIRING CONTROLS
 
         try {
-            if (event.key === 'Space') {
+            if (event.key === 'Enter') {
                 if (shellFlyingRef.current === true) {
                     return
                 } else {
@@ -137,7 +140,7 @@ const Map = () => {
             }
         } catch(err) {console.log(err);}
         try {
-            if (event.key === 'Enter') {
+            if (event.key === ' ') {
                 if (shellFlyingRef.current === true) {
                     return
                 } else {
@@ -357,28 +360,28 @@ const Map = () => {
 
     // SHOOTING DIRECTIONS 
 
-    const shootDirection = tank => {
-        if (currentPlayerRotationRef.current === "0deg") {
+    const shootDirection = (tank, rotation) => {
+        if (rotation.current === "0deg") {
             return { 
                 marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
                 marginTop: currentShellPositionRef.current[tank + "MoveY"] - 420,
                 width: "8px"
             }
             
-        } else if (currentPlayerRotationRef.current === "180deg") {
+        } else if (rotation.current === "180deg") {
             return {
                 marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
                 marginTop: currentShellPositionRef.current[tank + "MoveY"] + 420,
                 transform: `rotate(180deg)`
             }
             
-        } else if (currentPlayerRotationRef.current === "90deg") {
+        } else if (rotation.current === "90deg") {
             return {
                 marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 420,
                 marginTop: currentShellPositionRef.current[tank + "MoveY"] + 11,
                 transform: `rotate(90deg)`
             }
-        } else if (currentPlayerRotationRef.current === "270deg") {
+        } else if (rotation.current === "270deg") {
             return {
                 marginLeft: currentShellPositionRef.current[tank + "MoveX"] - 420,
                 marginTop: currentShellPositionRef.current[tank + "MoveY"] + 11,
@@ -391,18 +394,32 @@ const Map = () => {
     // FIRING SHELLS 
 
     const preFire = (tank) => {
-        setPlayerShell(<div className='playerShell' style={{
-            marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
-            marginTop: currentShellPositionRef.current[tank + "MoveY"],
-            width: "8px"
-        }}></div>)
+        if (tank === "player") {
+            setPlayerShell(<div className={[tank + "Shell"]} style={{
+                marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
+                marginTop: currentShellPositionRef.current[tank + "MoveY"],
+                width: "8px"
+            }}></div>)
+        } else {
+            setEnemyShell(<div className={[tank + "Shell"]} style={{
+                marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
+                marginTop: currentShellPositionRef.current[tank + "MoveY"],
+                width: "8px"
+            }}></div>)
+        }
     }
 
 
     const fire = (tank) => {
-        playerShellRef.current = (<div  className='playerShell' style={shootDirection(tank)}></div>)
-        setPlayerShell(playerShellRef.current)
-        setPlayerShellFlying(true)
+        if (tank === "player") {
+            playerShellRef.current = (<div  className='playerShell' style={shootDirection(tank, currentPlayerRotationRef)}></div>)
+            setPlayerShell(playerShellRef.current)
+            setPlayerShellFlying(true)
+        } else {
+            enemyShellRef.current = (<div className='enemyShell' style={shootDirection(tank, currentEnemyRotationRef)}></div>)
+            setEnemyShell(enemyShellRef.current)
+            setPlayerShellFlying(true)
+        }
 
     }
 
