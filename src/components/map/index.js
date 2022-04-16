@@ -23,9 +23,8 @@ const Map = () => {
     const [currentShellPosition, setCurrentShellPosition] = useState()
     const [playerShell, setPlayerShell] = useState()
     const [enemyShell, setEnemyShell] = useState()
-    const [playerShellFlying, setPlayerShellFlying] = useState(false)
+    const [shellFlying, setShellFlying] = useState([false, false])
 
-    var playerShellCount = 0
     var time 
     var keysPressed = {}
     const dispatch = useDispatch()
@@ -38,7 +37,7 @@ const Map = () => {
     const playerShellRef = useRef()
     const enemyShellRef = useRef()
     const shellFlyingRef = useRef(false)
-    shellFlyingRef.current = playerShellFlying
+    shellFlyingRef.current = shellFlying
     const currentShellPositionRef = useRef()
     currentShellPositionRef.current = currentShellPosition
     const currentPlayerRotationRef = useRef("0deg")
@@ -130,7 +129,7 @@ const Map = () => {
 
         try {
             if (event.key === 'Enter') {
-                if (shellFlyingRef.current === true) {
+                if (shellFlyingRef.current[0] === true) {
                     return
                 } else {
                     setCurrentShellPosition(myStateRef.current)
@@ -141,7 +140,7 @@ const Map = () => {
         } catch(err) {console.log(err);}
         try {
             if (event.key === ' ') {
-                if (shellFlyingRef.current === true) {
+                if (shellFlyingRef.current[1] === true) {
                     return
                 } else {
                     setCurrentShellPosition(myStateRef.current)
@@ -364,27 +363,27 @@ const Map = () => {
         if (rotation.current === "0deg") {
             return { 
                 marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
-                marginTop: currentShellPositionRef.current[tank + "MoveY"] - 420,
+                marginTop: currentShellPositionRef.current[tank + "MoveY"] - 500,
                 width: "8px"
             }
             
         } else if (rotation.current === "180deg") {
             return {
                 marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
-                marginTop: currentShellPositionRef.current[tank + "MoveY"] + 420,
+                marginTop: currentShellPositionRef.current[tank + "MoveY"] + 500,
                 transform: `rotate(180deg)`
             }
             
         } else if (rotation.current === "90deg") {
             return {
-                marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 420,
-                marginTop: currentShellPositionRef.current[tank + "MoveY"] + 11,
+                marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 500,
+                marginTop: currentShellPositionRef.current[tank + "MoveY"] + 7,
                 transform: `rotate(90deg)`
             }
         } else if (rotation.current === "270deg") {
             return {
-                marginLeft: currentShellPositionRef.current[tank + "MoveX"] - 420,
-                marginTop: currentShellPositionRef.current[tank + "MoveY"] + 11,
+                marginLeft: currentShellPositionRef.current[tank + "MoveX"] - 500,
+                marginTop: currentShellPositionRef.current[tank + "MoveY"] + 7,
                 transform: `rotate(270deg)`
             }
         }
@@ -414,11 +413,11 @@ const Map = () => {
         if (tank === "player") {
             playerShellRef.current = (<div  className='playerShell' style={shootDirection(tank, currentPlayerRotationRef)}></div>)
             setPlayerShell(playerShellRef.current)
-            setPlayerShellFlying(true)
+            setShellFlying([...shellFlying[0] = true])
         } else {
             enemyShellRef.current = (<div className='enemyShell' style={shootDirection(tank, currentEnemyRotationRef)}></div>)
             setEnemyShell(enemyShellRef.current)
-            setPlayerShellFlying(true)
+            setShellFlying([...shellFlying[1] = true])
         }
 
     }
