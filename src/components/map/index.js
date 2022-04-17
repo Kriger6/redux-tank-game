@@ -411,13 +411,13 @@ const Map = () => {
 
     const fire = (tank) => {
         if (tank === "player") {
-            playerShellRef.current = (<div  className='playerShell' style={shootDirection(tank, currentPlayerRotationRef)}></div>)
+            playerShellRef.current = (<div ref={el => setInterval(() => console.log(el.getBoundingClientRect()), 4)}  className='playerShell' style={shootDirection(tank, currentPlayerRotationRef)}></div>)
             setPlayerShell(playerShellRef.current)
-            setShellFlying([...shellFlying[0] = true])
+            setShellFlying([true, shellFlying[1]])
         } else {
             enemyShellRef.current = (<div className='enemyShell' style={shootDirection(tank, currentEnemyRotationRef)}></div>)
             setEnemyShell(enemyShellRef.current)
-            setShellFlying([...shellFlying[1] = true])
+            setShellFlying([shellFlying[0], true])
         }
 
     }
