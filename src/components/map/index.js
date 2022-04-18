@@ -21,8 +21,8 @@ const Map = () => {
     const [enemyRotation, setEnemyRotation] = useState("180deg")
 
     const [currentShellPosition, setCurrentShellPosition] = useState()
-    const [playerShell, setPlayerShell] = useState()
-    const [enemyShell, setEnemyShell] = useState()
+    const [playerShell, setPlayerShell] = useState(null)
+    const [enemyShell, setEnemyShell] = useState(null)
     const [shellFlying, setShellFlying] = useState([false, false])
 
     var time 
@@ -44,6 +44,7 @@ const Map = () => {
     currentPlayerRotationRef.current = playerRotation
     const currentEnemyRotationRef = useRef("180deg")
     currentEnemyRotationRef.current = enemyRotation
+
 
 
 
@@ -363,26 +364,26 @@ const Map = () => {
         if (rotation.current === "0deg") {
             return { 
                 marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
-                marginTop: currentShellPositionRef.current[tank + "MoveY"] - 500,
+                marginTop: currentShellPositionRef.current[tank + "MoveY"] - 490,
                 width: "8px"
             }
             
         } else if (rotation.current === "180deg") {
             return {
                 marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
-                marginTop: currentShellPositionRef.current[tank + "MoveY"] + 500,
+                marginTop: currentShellPositionRef.current[tank + "MoveY"] + 490,
                 transform: `rotate(180deg)`
             }
             
         } else if (rotation.current === "90deg") {
             return {
-                marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 500,
+                marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 490,
                 marginTop: currentShellPositionRef.current[tank + "MoveY"] + 7,
                 transform: `rotate(90deg)`
             }
         } else if (rotation.current === "270deg") {
             return {
-                marginLeft: currentShellPositionRef.current[tank + "MoveX"] - 500,
+                marginLeft: currentShellPositionRef.current[tank + "MoveX"] - 490,
                 marginTop: currentShellPositionRef.current[tank + "MoveY"] + 7,
                 transform: `rotate(270deg)`
             }
@@ -409,18 +410,45 @@ const Map = () => {
     }
 
 
+    var af
+
     const fire = (tank) => {
         if (tank === "player") {
-            playerShellRef.current = (<div ref={el => setInterval(() => console.log(el.getBoundingClientRect()), 4)}  className='playerShell' style={shootDirection(tank, currentPlayerRotationRef)}></div>)
+            playerShellRef.current = (<div ref={el => {
+                function animate() {
+                    af = requestAnimationFrame(animate)
+                    
+                    console.log(af, el.getBoundingClientRect());
+                    cancelAnimationFrame(af)
+                }
+                try {
+                    el.addEventListener('webkitTransitionEnd', function(e) {
+                            setPlayerShell(null)
+                            setShellFlying([false, shellFlying[1]])                        
+                    }, false)
+                } catch(err) {
+                    console.log(err);
+                }
+            }}  className='playerShell' style={shootDirection(tank, currentPlayerRotationRef)}></div>)
             setPlayerShell(playerShellRef.current)
             setShellFlying([true, shellFlying[1]])
         } else {
-            enemyShellRef.current = (<div className='enemyShell' style={shootDirection(tank, currentEnemyRotationRef)}></div>)
+            enemyShellRef.current = (<div ref={el => {
+                try {
+                    el.addEventListener('webkitTransitionEnd', function (e) {
+                        setEnemyShell(null)
+                        setShellFlying([shellFlying[0], false])
+                    }, false)
+                } catch (err) {
+                    console.log(err);
+                }
+            }} className='enemyShell' style={shootDirection(tank, currentEnemyRotationRef)}></div>)
             setEnemyShell(enemyShellRef.current)
             setShellFlying([shellFlying[0], true])
         }
 
     }
+
 
     return (
         <div className='mapContainer'>
