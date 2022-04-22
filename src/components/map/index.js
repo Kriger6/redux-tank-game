@@ -24,6 +24,7 @@ const Map = () => {
     const [playerShell, setPlayerShell] = useState(null)
     const [enemyShell, setEnemyShell] = useState(null)
     const [shellFlying, setShellFlying] = useState([false, false])
+    
 
     var time 
     var keysPressed = {}
@@ -45,7 +46,8 @@ const Map = () => {
     const currentEnemyRotationRef = useRef("180deg")
     currentEnemyRotationRef.current = enemyRotation
 
-
+    const tank = useRef(null)
+    const enemy = useRef(null)
 
 
     // COLLISION ENGINE
@@ -354,7 +356,7 @@ const Map = () => {
     }
     useEffect(() => {
         document.addEventListener('keydown', move)
-        document.addEventListener('keyup', keyUp)        
+        document.addEventListener('keyup', keyUp)
     })
 
 
@@ -365,7 +367,8 @@ const Map = () => {
             return { 
                 marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
                 marginTop: currentShellPositionRef.current[tank + "MoveY"] - 490,
-                width: "8px"
+                width: "8px",
+                zIndex: 1
             }
             
         } else if (rotation.current === "180deg") {
@@ -414,15 +417,25 @@ const Map = () => {
 
     const fire = (tank) => {
         if (tank === "player") {
-            playerShellRef.current = (<div ref={el => {
+            playerShellRef.current = (<div ref={pShell => {
                 function animate() {
                     af = requestAnimationFrame(animate)
-                    
-                    console.log(af, el.getBoundingClientRect());
-                    cancelAnimationFrame(af)
+                    console.log(af);
+                    if (pShell.getBoundingClientRect().y < 155) {
+                        setPlayerShell(null)
+                        setShellFlying([false, shellFlying[1]]) 
+                        window.cancelAnimationFrame(af)
+                        return
+                    } else {
+                        console.log(pShell.getBoundingClientRect());
+                    }
                 }
+                
                 try {
-                    el.addEventListener('webkitTransitionEnd', function(e) {
+                    if (pShell) {
+                        animate()
+                    }
+                    pShell.addEventListener('webkitTransitionEnd', function(e) {
                             setPlayerShell(null)
                             setShellFlying([false, shellFlying[1]])                        
                     }, false)
@@ -433,9 +446,9 @@ const Map = () => {
             setPlayerShell(playerShellRef.current)
             setShellFlying([true, shellFlying[1]])
         } else {
-            enemyShellRef.current = (<div ref={el => {
+            enemyShellRef.current = (<div ref={pShell => {
                 try {
-                    el.addEventListener('webkitTransitionEnd', function (e) {
+                    pShell.addEventListener('webkitTransitionEnd', function (e) {
                         setEnemyShell(null)
                         setShellFlying([shellFlying[0], false])
                     }, false)
@@ -455,10 +468,10 @@ const Map = () => {
             <div className='map'>
                 <div>{playerShell}</div>
                 <div>{enemyShell}</div>
-                <div className='tank' style={{marginLeft: `${movePlayerX}px`, marginTop: `${movePlayerY}px`, transform: `rotate(${playerRotation})`}}  >
+                <div ref={tank} className='tank' style={{marginLeft: `${movePlayerX}px`, marginTop: `${movePlayerY}px`, transform: `rotate(${playerRotation})`}}  >
                     <div className='gun'></div>
                 </div>
-                <div className='enemy' style={{marginLeft: `${moveEnemyX}px`, marginTop: `${moveEnemyY}px`, transform: `rotate(${enemyRotation})`}}  >
+                <div ref={enemy} className='enemy' style={{marginLeft: `${moveEnemyX}px`, marginTop: `${moveEnemyY}px`, transform: `rotate(${enemyRotation})`}}  >
                     <div className='gun'></div>
                 </div>
                 <div className='base1' style={{}}></div>
