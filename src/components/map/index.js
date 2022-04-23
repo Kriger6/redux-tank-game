@@ -24,7 +24,9 @@ const Map = () => {
     const [playerShell, setPlayerShell] = useState(null)
     const [enemyShell, setEnemyShell] = useState(null)
     const [shellFlying, setShellFlying] = useState([false, false])
-    
+
+    const [shellRect, setShellRect] = useState(null)
+     
 
     var time 
     var keysPressed = {}
@@ -413,15 +415,18 @@ const Map = () => {
     }
 
 
-    var af
 
     const fire = (tank) => {
         if (tank === "player") {
             playerShellRef.current = (<div ref={pShell => {
                 function animate() {
-                    af = requestAnimationFrame(animate)
+                    let af = requestAnimationFrame(animate)
                     console.log(af);
-                    if (pShell.getBoundingClientRect().y < 155) {
+                    setShellRect(pShell.getBoundingClientRect())
+                    if (pShell.getBoundingClientRect().y < 170 ||
+                        pShell.getBoundingClientRect().y > 600 ||
+                        pShell.getBoundingClientRect().x < 180 ||
+                        pShell.getBoundingClientRect().x > 665) {
                         setPlayerShell(null)
                         setShellFlying([false, shellFlying[1]]) 
                         window.cancelAnimationFrame(af)
