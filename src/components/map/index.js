@@ -48,11 +48,12 @@ const Map = () => {
     const currentEnemyRotationRef = useRef("180deg")
     currentEnemyRotationRef.current = enemyRotation
 
-    const tank = useRef(null)
-    const enemy = useRef(null)
+    const playerTank = useRef(null)
+    const enemyTank = useRef(null)
+    const mapRef = useRef(null)
 
 
-    // COLLISION ENGINE
+    // TANK TO TANK COLLISION
 
 
     const checkPlayerX = (operator) => {
@@ -369,8 +370,6 @@ const Map = () => {
             return { 
                 marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
                 marginTop: currentShellPositionRef.current[tank + "MoveY"] - 490,
-                width: "8px",
-                zIndex: 1
             }
             
         } else if (rotation.current === "180deg") {
@@ -419,47 +418,58 @@ const Map = () => {
     const fire = (tank) => {
         if (tank === "player") {
             playerShellRef.current = (<div ref={pShell => {
+                // SHELL COLLISION DETECTION WITH WALLS AND OBJECTS
                 function animate() {
+
                     let af = requestAnimationFrame(animate)
-                    console.log(af);
+                    
                     setShellRect(pShell.getBoundingClientRect())
-                    if (pShell.getBoundingClientRect().y < 170 ||
-                        pShell.getBoundingClientRect().y > 600 ||
-                        pShell.getBoundingClientRect().x < 180 ||
-                        pShell.getBoundingClientRect().x > 665) {
+                    if (pShell.getBoundingClientRect().y < mapRef.current.getBoundingClientRect().top ||
+                        pShell.getBoundingClientRect().y > mapRef.current.getBoundingClientRect().bottom ||
+                        pShell.getBoundingClientRect().x < mapRef.current.getBoundingClientRect().left ||
+                        pShell.getBoundingClientRect().x > mapRef.current.getBoundingClientRect().right) {
                         setPlayerShell(null)
                         setShellFlying([false, shellFlying[1]]) 
                         window.cancelAnimationFrame(af)
                         return
-                    } else {
-                        console.log(pShell.getBoundingClientRect());
+                    } else if (
+                        pShell.getBoundingClientRect().x < enemyTank.current.getBoundingClientRect().x + enemyTank.current.getBoundingClientRect().width &&
+                        pShell.getBoundingClientRect().x + pShell.getBoundingClientRect().width > enemyTank.current.getBoundingClientRect().x &&
+                        pShell.getBoundingClientRect().y < enemyTank.current.getBoundingClientRect().y + enemyTank.current.getBoundingClientRect().height &&
+                        pShell.getBoundingClientRect().height + pShell.getBoundingClientRect().y > enemyTank.current.getBoundingClientRect().y)  {
+                        console.log("hit");
                     }
                 }
-                
-                try {
                     if (pShell) {
                         animate()
                     }
-                    pShell.addEventListener('webkitTransitionEnd', function(e) {
-                            setPlayerShell(null)
-                            setShellFlying([false, shellFlying[1]])                        
-                    }, false)
-                } catch(err) {
-                    console.log(err);
-                }
             }}  className='playerShell' style={shootDirection(tank, currentPlayerRotationRef)}></div>)
             setPlayerShell(playerShellRef.current)
             setShellFlying([true, shellFlying[1]])
-        } else {
-            enemyShellRef.current = (<div ref={pShell => {
-                try {
-                    pShell.addEventListener('webkitTransitionEnd', function (e) {
+        } else if(tank === "enemy") {
+            enemyShellRef.current = (<div ref={eShell => {
+                function animate() {
+
+                    let af = requestAnimationFrame(animate)
+
+                    if (eShell.getBoundingClientRect().y < mapRef.current.getBoundingClientRect().top ||
+                        eShell.getBoundingClientRect().y > mapRef.current.getBoundingClientRect().bottom ||
+                        eShell.getBoundingClientRect().x < mapRef.current.getBoundingClientRect().left ||
+                        eShell.getBoundingClientRect().x > mapRef.current.getBoundingClientRect().right) {
+                            console.log(playerTank.current.getBoundingClientRect());
                         setEnemyShell(null)
                         setShellFlying([shellFlying[0], false])
-                    }, false)
-                } catch (err) {
-                    console.log(err);
+                        window.cancelAnimationFrame(af)
+                        return
+                    } else if(Math.abs(eShell.getBoundingClientRect().bottom - playerTank.current.getBoundingClientRect().top) < 30 && 
+                              Math.abs(eShell.getBoundingClientRect().x - playerTank.current.getBoundingClientRect().x) < 30) {
+                        console.log("hit");
+                    }
                 }
+                    if (eShell) {
+                        animate()
+                    }
+                    
             }} className='enemyShell' style={shootDirection(tank, currentEnemyRotationRef)}></div>)
             setEnemyShell(enemyShellRef.current)
             setShellFlying([shellFlying[0], true])
@@ -470,13 +480,13 @@ const Map = () => {
 
     return (
         <div className='mapContainer'>
-            <div className='map'>
+            <div ref={mapRef} className='map'>
                 <div>{playerShell}</div>
                 <div>{enemyShell}</div>
-                <div ref={tank} className='tank' style={{marginLeft: `${movePlayerX}px`, marginTop: `${movePlayerY}px`, transform: `rotate(${playerRotation})`}}  >
+                <div ref={playerTank} className='tank' style={{marginLeft: `${movePlayerX}px`, marginTop: `${movePlayerY}px`, transform: `rotate(${playerRotation})`}}  >
                     <div className='gun'></div>
                 </div>
-                <div ref={enemy} className='enemy' style={{marginLeft: `${moveEnemyX}px`, marginTop: `${moveEnemyY}px`, transform: `rotate(${enemyRotation})`}}  >
+                <div ref={enemyTank} className='enemy' style={{marginLeft: `${moveEnemyX}px`, marginTop: `${moveEnemyY}px`, transform: `rotate(${enemyRotation})`}}  >
                     <div className='gun'></div>
                 </div>
                 <div className='base1' style={{}}></div>
