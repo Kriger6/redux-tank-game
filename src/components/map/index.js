@@ -10,6 +10,8 @@ import {playerMoveLeft,
     enemyMoveUp} from '../../actions'
 
 const Map = () => {
+
+    
     
     const movePlayerX =  useSelector(state => state.playerMoveX)
     const movePlayerY = useSelector(state => state.playerMoveY)
@@ -24,6 +26,9 @@ const Map = () => {
     const [playerShell, setPlayerShell] = useState(null)
     const [enemyShell, setEnemyShell] = useState(null)
     const [shellFlying, setShellFlying] = useState([false, false])
+
+    const [enemyVisibility, setEnemyVisibility] = useState("visible")
+    
 
     const [shellRect, setShellRect] = useState(null)
      
@@ -437,6 +442,13 @@ const Map = () => {
                         pShell.getBoundingClientRect().x + pShell.getBoundingClientRect().width > enemyTank.current.getBoundingClientRect().x &&
                         pShell.getBoundingClientRect().y < enemyTank.current.getBoundingClientRect().y + enemyTank.current.getBoundingClientRect().height &&
                         pShell.getBoundingClientRect().height + pShell.getBoundingClientRect().y > enemyTank.current.getBoundingClientRect().y)  {
+                        setPlayerShell(null)
+                        setShellFlying([false, shellFlying[1]])
+                        setEnemyVisibility("hidden")
+                        moveEnemyY = mapRef.current.getBoundingClientRect().y - 20
+                        // setTimeout(() => {enemyTank.current = removedEnemy}, 3000)
+                        // setTimeout(() => {console.log(removedEnemy)}, 4000)
+                        window.cancelAnimationFrame(af)
                         console.log("hit");
                     }
                 }
@@ -456,7 +468,7 @@ const Map = () => {
                         eShell.getBoundingClientRect().y > mapRef.current.getBoundingClientRect().bottom ||
                         eShell.getBoundingClientRect().x < mapRef.current.getBoundingClientRect().left ||
                         eShell.getBoundingClientRect().x > mapRef.current.getBoundingClientRect().right) {
-                            console.log(playerTank.current.getBoundingClientRect());
+                        console.log(playerTank.current.getBoundingClientRect());
                         setEnemyShell(null)
                         setShellFlying([shellFlying[0], false])
                         window.cancelAnimationFrame(af)
@@ -486,7 +498,7 @@ const Map = () => {
                 <div ref={playerTank} className='tank' style={{marginLeft: `${movePlayerX}px`, marginTop: `${movePlayerY}px`, transform: `rotate(${playerRotation})`}}  >
                     <div className='gun'></div>
                 </div>
-                <div ref={enemyTank} className='enemy' style={{marginLeft: `${moveEnemyX}px`, marginTop: `${moveEnemyY}px`, transform: `rotate(${enemyRotation})`}}  >
+                <div ref={enemyTank} className='enemy' style={{marginLeft: `${moveEnemyX}px`, marginTop: `${moveEnemyY}px`, transform: `rotate(${enemyRotation})`, visibility: enemyVisibility}}  >
                     <div className='gun'></div>
                 </div>
                 <div className='base1' style={{}}></div>
