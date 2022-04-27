@@ -8,6 +8,10 @@ const playerMoveX = (state = 130, action) => {
             if (state === 470) {
                 return state
             } else return state + 2
+        case 'PLAYERSPWNLEFT':
+            return state = 130
+        case 'PLAYERSPWNRIGHT':
+            return state = 330
         default:
             return state;
     }

@@ -7,7 +7,11 @@ import {playerMoveLeft,
     enemyMoveDown,
     enemyMoveLeft,
     enemyMoveRight,
-    enemyMoveUp} from '../../actions'
+    enemyMoveUp,
+    enemySpawnLeft,
+    enemySpawnRight,
+    playerSpawnLeft,
+    playerSpawnRight} from '../../actions'
 
 const Map = () => {
 
@@ -27,7 +31,9 @@ const Map = () => {
     const [enemyShell, setEnemyShell] = useState(null)
     const [shellFlying, setShellFlying] = useState([false, false])
 
-    const [enemyVisibility, setEnemyVisibility] = useState("visible")
+    const [visibility, setVisibility] = useState(["visible", "visible"])
+
+    const [tankDestroyed, setTankDestroyed] = useState([false, false])
     
 
     const [shellRect, setShellRect] = useState(null)
@@ -52,6 +58,9 @@ const Map = () => {
     currentPlayerRotationRef.current = playerRotation
     const currentEnemyRotationRef = useRef("180deg")
     currentEnemyRotationRef.current = enemyRotation
+
+    const tankDestroyedRef = useRef()
+    tankDestroyedRef.current = tankDestroyed
 
     const playerTank = useRef(null)
     const enemyTank = useRef(null)
@@ -167,13 +176,13 @@ const Map = () => {
             if(checkPlayerY()) {
                 dispatch(playerMoveUp())
             }
-            if (checkEnemyY("+")) {
+            if (checkEnemyY("+") && tankDestroyedRef.current[1] === false) {
                 dispatch(enemyMoveDown())
             }
             setPlayerRotation("0deg")
             setEnemyRotation("180deg")
         } else if ((keysPressed['s'] && keysPressed['ArrowDown'])) {
-            if (checkEnemyY("+")) {
+            if (checkEnemyY("+") && tankDestroyedRef.current[1] === false) {
                 dispatch(enemyMoveDown())
             }
             if (checkPlayerY("+")) {
@@ -185,7 +194,7 @@ const Map = () => {
             if (checkPlayerX()) {
                 dispatch(playerMoveLeft())
             }
-            if (checkEnemyY("+")) {
+            if (checkEnemyY("+") && tankDestroyedRef.current[1] === false) {
                 dispatch(enemyMoveDown())
             }
             setPlayerRotation("270deg")
@@ -194,13 +203,13 @@ const Map = () => {
             if (checkPlayerX("+")) {
                 dispatch(playerMoveRight())
             }
-            if (checkEnemyY("+")) {
+            if (checkEnemyY("+") && tankDestroyedRef.current[1] === false) {
                 dispatch(enemyMoveDown())
             }
             setPlayerRotation("90deg")
             setEnemyRotation("180deg")
         } else if ((keysPressed['a'] && keysPressed['ArrowDown'])) {
-            if (checkEnemyX()) {
+            if (checkEnemyX() && tankDestroyedRef.current[1] === false) {
                     dispatch(enemyMoveLeft())
             }
             if (checkPlayerY("+")) {
@@ -209,7 +218,7 @@ const Map = () => {
             setPlayerRotation("180deg")
             setEnemyRotation("270deg")
         } else if ((keysPressed['a'] && keysPressed['ArrowUp'])) {
-            if (checkEnemyX()) {
+            if (checkEnemyX() && tankDestroyedRef.current[1] === false) {
                 dispatch(enemyMoveLeft())
             }
             if (checkPlayerY()) {
@@ -221,7 +230,7 @@ const Map = () => {
             if (checkPlayerX()) {
                 dispatch(playerMoveLeft())
             }
-            if (checkEnemyX()) {
+            if (checkEnemyX() && tankDestroyedRef.current[1] === false) {
                 dispatch(enemyMoveLeft())
             }
             setEnemyRotation("270deg")
@@ -230,7 +239,7 @@ const Map = () => {
             if (checkPlayerX("+")) {
                 dispatch(playerMoveRight())
             }
-            if (checkEnemyX()) {
+            if (checkEnemyX() && tankDestroyedRef.current[1] === false) {
                     dispatch(enemyMoveLeft())
             }
             setEnemyRotation("270deg")
@@ -239,7 +248,7 @@ const Map = () => {
             if (checkPlayerY()) {
                 dispatch(playerMoveUp())
             }
-            if (checkEnemyY()) {
+            if (checkEnemyY() && tankDestroyedRef.current[1] === false) {
                     dispatch(enemyMoveUp())
             }
             setEnemyRotation("0deg")
@@ -248,7 +257,7 @@ const Map = () => {
             if (checkPlayerX()) {
                 dispatch(playerMoveLeft())
             }
-            if (checkEnemyY()) {
+            if (checkEnemyY() && tankDestroyedRef.current[1] === false) {
                 dispatch(enemyMoveUp())
             }
             setEnemyRotation("0deg")
@@ -257,7 +266,7 @@ const Map = () => {
             if (checkPlayerX("+")) {
                 dispatch(playerMoveRight())
             }
-            if (checkEnemyY()) {
+            if (checkEnemyY() && tankDestroyedRef.current[1] === false) {
                 dispatch(enemyMoveUp())
             }
             setEnemyRotation("0deg")
@@ -266,13 +275,13 @@ const Map = () => {
             if (checkPlayerY("+")) {
                 dispatch(playerMoveDown())
             }
-            if (checkEnemyY()) {
+            if (checkEnemyY() && tankDestroyedRef.current[1] === false) {
                 dispatch(enemyMoveUp())
             }
             setEnemyRotation("0deg")
             setPlayerRotation("180deg")
         } else if ((keysPressed['d'] && keysPressed['ArrowUp'])) {
-            if (checkEnemyX("+")) {
+            if (checkEnemyX("+") && tankDestroyedRef.current[1] === false) {
                 dispatch(enemyMoveRight())
             }
             if (checkPlayerY()) {
@@ -284,7 +293,7 @@ const Map = () => {
             if (checkPlayerX()) {
                 dispatch(playerMoveLeft())
             }
-            if (checkEnemyX("+")) {
+            if (checkEnemyX("+") && tankDestroyedRef.current[1] === false) {
                 dispatch(enemyMoveRight())
             }
             setEnemyRotation("90deg")
@@ -293,13 +302,13 @@ const Map = () => {
             if (checkPlayerX("+")) {
                 dispatch(playerMoveRight())
             }
-            if (checkEnemyX("+")) {
+            if (checkEnemyX("+") && tankDestroyedRef.current[1] === false) {
                     dispatch(enemyMoveRight())
             }
             setEnemyRotation("90deg")
             setPlayerRotation("90deg")
         } else if ((keysPressed['d'] && keysPressed['ArrowDown'])) {
-            if (checkEnemyY("+")) {
+            if (checkEnemyY("+") && tankDestroyedRef.current[1] === false) {
                 dispatch(enemyMoveRight())
             }
             if (checkPlayerY("+")) {
@@ -308,22 +317,22 @@ const Map = () => {
             setEnemyRotation("90deg")
             setPlayerRotation("180deg")
         } else if (keysPressed['s']) {
-            if (checkEnemyY("+")) {
+            if (checkEnemyY("+") && tankDestroyedRef.current[1] === false) {
                 dispatch(enemyMoveDown())
             }
             setEnemyRotation("180deg")
         } else if (keysPressed['d']) {
-            if (checkEnemyX("+")) {
+            if (checkEnemyX("+") && tankDestroyedRef.current[1] === false) {
                     dispatch(enemyMoveRight())
             }
             setEnemyRotation("90deg")
         } else if (keysPressed['a']) {
-            if (checkEnemyX()) {
+            if (checkEnemyX() && tankDestroyedRef.current[1] === false) {
                     dispatch(enemyMoveLeft())
             }
             setEnemyRotation("270deg")
         } else if (keysPressed['w']) {
-            if (checkEnemyY()) {
+            if (checkEnemyY() && tankDestroyedRef.current[1] === false) {
                 dispatch(enemyMoveUp())
             }
             setEnemyRotation("0deg")
@@ -428,7 +437,6 @@ const Map = () => {
 
                     let af = requestAnimationFrame(animate)
                     
-                    setShellRect(pShell.getBoundingClientRect())
                     if (pShell.getBoundingClientRect().y < mapRef.current.getBoundingClientRect().top ||
                         pShell.getBoundingClientRect().y > mapRef.current.getBoundingClientRect().bottom ||
                         pShell.getBoundingClientRect().x < mapRef.current.getBoundingClientRect().left ||
@@ -444,12 +452,19 @@ const Map = () => {
                         pShell.getBoundingClientRect().height + pShell.getBoundingClientRect().y > enemyTank.current.getBoundingClientRect().y)  {
                         setPlayerShell(null)
                         setShellFlying([false, shellFlying[1]])
-                        setEnemyVisibility("hidden")
-                        moveEnemyY = mapRef.current.getBoundingClientRect().y - 20
-                        // setTimeout(() => {enemyTank.current = removedEnemy}, 3000)
-                        // setTimeout(() => {console.log(removedEnemy)}, 4000)
+                        setVisibility([visibility[0], "hidden"])
+                        if (playerTank.current.getBoundingClientRect().x < mapRef.current.getBoundingClientRect().width / 2 + mapRef.current.getBoundingClientRect().x) {
+                            dispatch(enemySpawnRight())
+                        } else {
+                            dispatch(enemySpawnLeft())
+                        }
+                        setTankDestroyed([tankDestroyed[0], true])
+                        setTimeout(() => {
+                            setVisibility([visibility[0], "visible"])
+                            setEnemyRotation("180deg")
+                            setTankDestroyed([tankDestroyed[0], false])}, 2000)
+                        
                         window.cancelAnimationFrame(af)
-                        console.log("hit");
                     }
                 }
                     if (pShell) {
@@ -468,14 +483,31 @@ const Map = () => {
                         eShell.getBoundingClientRect().y > mapRef.current.getBoundingClientRect().bottom ||
                         eShell.getBoundingClientRect().x < mapRef.current.getBoundingClientRect().left ||
                         eShell.getBoundingClientRect().x > mapRef.current.getBoundingClientRect().right) {
-                        console.log(playerTank.current.getBoundingClientRect());
                         setEnemyShell(null)
                         setShellFlying([shellFlying[0], false])
                         window.cancelAnimationFrame(af)
                         return
-                    } else if(Math.abs(eShell.getBoundingClientRect().bottom - playerTank.current.getBoundingClientRect().top) < 30 && 
-                              Math.abs(eShell.getBoundingClientRect().x - playerTank.current.getBoundingClientRect().x) < 30) {
-                        console.log("hit");
+                    } else if (
+                        eShell.getBoundingClientRect().x < playerTank.current.getBoundingClientRect().x + playerTank.current.getBoundingClientRect().width &&
+                        eShell.getBoundingClientRect().x + eShell.getBoundingClientRect().width > playerTank.current.getBoundingClientRect().x &&
+                        eShell.getBoundingClientRect().y < playerTank.current.getBoundingClientRect().y + playerTank.current.getBoundingClientRect().height &&
+                        eShell.getBoundingClientRect().height + eShell.getBoundingClientRect().y > playerTank.current.getBoundingClientRect().y) {
+                        setEnemyShell(null)
+                        setShellFlying([shellFlying[0], false])
+                        setVisibility(["hidden", visibility[1]])
+                        if (enemyTank.current.getBoundingClientRect().x < mapRef.current.getBoundingClientRect().width / 2 + mapRef.current.getBoundingClientRect().x) {
+                            dispatch(playerSpawnRight())        
+                        } else {
+                            dispatch(playerSpawnLeft())
+                        }
+                        setTankDestroyed([true, tankDestroyed[1]])
+                        setTimeout(() => {
+                            setVisibility(["visible", visibility[1]])
+                            setPlayerRotation("0deg")
+                            setTankDestroyed([false, tankDestroyed[1]])
+                        }, 2000)
+
+                        window.cancelAnimationFrame(af)
                     }
                 }
                     if (eShell) {
@@ -495,10 +527,10 @@ const Map = () => {
             <div ref={mapRef} className='map'>
                 <div>{playerShell}</div>
                 <div>{enemyShell}</div>
-                <div ref={playerTank} className='tank' style={{marginLeft: `${movePlayerX}px`, marginTop: `${movePlayerY}px`, transform: `rotate(${playerRotation})`}}  >
+                <div ref={playerTank} className='tank' style={{marginLeft: `${movePlayerX}px`, marginTop: `${movePlayerY}px`, transform: `rotate(${playerRotation})`, visibility: visibility[0]}}  >
                     <div className='gun'></div>
                 </div>
-                <div ref={enemyTank} className='enemy' style={{marginLeft: `${moveEnemyX}px`, marginTop: `${moveEnemyY}px`, transform: `rotate(${enemyRotation})`, visibility: enemyVisibility}}  >
+                <div ref={enemyTank} className='enemy' style={{marginLeft: `${moveEnemyX}px`, marginTop: `${moveEnemyY}px`, transform: `rotate(${enemyRotation})`, visibility: visibility[1]}}  >
                     <div className='gun'></div>
                 </div>
                 <div className='base1' style={{}}></div>

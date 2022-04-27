@@ -8,6 +8,10 @@ const enemyMoveX = (state = 330, action) => {
             if (state === 470) {
                 return state
             } else return state + 2
+        case 'ENEMYSPWNLEFT':
+            return state = 130
+        case 'ENEMYSPWNRIGHT':
+            return state = 330
         default:
             return state;
     }

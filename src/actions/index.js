@@ -45,3 +45,27 @@ export const enemyMoveDown = () => {
         type: 'ENEMYDOWN'
     }
 }
+
+export const enemySpawnLeft = () => {
+    return {
+        type: 'ENEMYSPWNLEFT'
+    }
+}
+
+export const enemySpawnRight = () => {
+    return {
+        type: 'ENEMYSPWNRIGHT'
+    }
+}
+
+export const playerSpawnLeft = () => {
+    return {
+        type: 'PLAYERSPWNLEFT'
+    }
+}
+
+export const playerSpawnRight = () => {
+    return {
+        type: 'PLAYERSPWNRIGHT'
+    }
+}

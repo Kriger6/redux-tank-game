@@ -8,6 +8,10 @@ const playerMoveY = (state = 414, action) => {
             if (state === 414) {
                 return state
             } else return state + 2
+        case 'PLAYERSPWNLEFT':
+            return state = 414
+        case 'PLAYERSPWNRIGHT':
+            return state = 414
         default:
             return state;
     }

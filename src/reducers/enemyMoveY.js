@@ -8,6 +8,10 @@ const enemyMoveY = (state = 0, action) => {
             if (state === 414) {
                 return state
             } else return state + 2
+        case 'ENEMYSPWNLEFT':
+            return state = 0
+        case 'ENEMYSPWNRIGHT':
+            return state = 0
         default:
             return state;
     }
