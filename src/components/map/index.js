@@ -1,5 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react'
 import { useSelector, useDispatch } from 'react-redux'
+import Walls from '../walls/'
 import {playerMoveLeft, 
     playerMoveRight, 
     playerMoveUp, 
@@ -34,10 +35,7 @@ const Map = () => {
     const [visibility, setVisibility] = useState(["visible", "visible"])
 
     const [tankDestroyed, setTankDestroyed] = useState([false, false])
-    
-
-    const [shellRect, setShellRect] = useState(null)
-     
+         
 
     var time 
     var keysPressed = {}
@@ -65,6 +63,7 @@ const Map = () => {
     const playerTank = useRef(null)
     const enemyTank = useRef(null)
     const mapRef = useRef(null)
+
 
 
     // TANK TO TANK COLLISION
@@ -173,7 +172,7 @@ const Map = () => {
         // MOVEMENT CONTROLS
             
         if ((keysPressed['s'] && keysPressed['ArrowUp'])) {
-            if(checkPlayerY()) {
+            if(checkPlayerY() && tankDestroyedRef.current[0] === false) {
                 dispatch(playerMoveUp())
             }
             if (checkEnemyY("+") && tankDestroyedRef.current[1] === false) {
@@ -185,13 +184,13 @@ const Map = () => {
             if (checkEnemyY("+") && tankDestroyedRef.current[1] === false) {
                 dispatch(enemyMoveDown())
             }
-            if (checkPlayerY("+")) {
+            if (checkPlayerY("+") && tankDestroyedRef.current[0] === false) {
                 dispatch(playerMoveDown())
             }
             setPlayerRotation("180deg")
             setEnemyRotation("180deg")
         } else if ((keysPressed['s'] && keysPressed['ArrowLeft'])) {
-            if (checkPlayerX()) {
+            if (checkPlayerX() && tankDestroyedRef.current[0] === false) {
                 dispatch(playerMoveLeft())
             }
             if (checkEnemyY("+") && tankDestroyedRef.current[1] === false) {
@@ -200,7 +199,7 @@ const Map = () => {
             setPlayerRotation("270deg")
             setEnemyRotation("180deg") 
         } else if ((keysPressed['s'] && keysPressed['ArrowRight'])) {
-            if (checkPlayerX("+")) {
+            if (checkPlayerX("+") && tankDestroyedRef.current[0] === false) {
                 dispatch(playerMoveRight())
             }
             if (checkEnemyY("+") && tankDestroyedRef.current[1] === false) {
@@ -212,7 +211,7 @@ const Map = () => {
             if (checkEnemyX() && tankDestroyedRef.current[1] === false) {
                     dispatch(enemyMoveLeft())
             }
-            if (checkPlayerY("+")) {
+            if (checkPlayerY("+") && tankDestroyedRef.current[0] === false) {
                 dispatch(playerMoveDown())
             }
             setPlayerRotation("180deg")
@@ -221,13 +220,13 @@ const Map = () => {
             if (checkEnemyX() && tankDestroyedRef.current[1] === false) {
                 dispatch(enemyMoveLeft())
             }
-            if (checkPlayerY()) {
+            if (checkPlayerY() && tankDestroyedRef.current[0] === false) {
                 dispatch(playerMoveUp())
             }
             setPlayerRotation("0deg")
             setEnemyRotation("270deg")
         } else if ((keysPressed['a'] && keysPressed['ArrowLeft'])) {
-            if (checkPlayerX()) {
+            if (checkPlayerX() && tankDestroyedRef.current[0] === false) {
                 dispatch(playerMoveLeft())
             }
             if (checkEnemyX() && tankDestroyedRef.current[1] === false) {
@@ -236,7 +235,7 @@ const Map = () => {
             setEnemyRotation("270deg")
             setPlayerRotation("270deg")
         } else if ((keysPressed['a'] && keysPressed['ArrowRight'])) {
-            if (checkPlayerX("+")) {
+            if (checkPlayerX("+") && tankDestroyedRef.current[0] === false) {
                 dispatch(playerMoveRight())
             }
             if (checkEnemyX() && tankDestroyedRef.current[1] === false) {
@@ -245,7 +244,7 @@ const Map = () => {
             setEnemyRotation("270deg")
             setPlayerRotation("90deg")
         } else if ((keysPressed['w'] && keysPressed['ArrowUp'])) {
-            if (checkPlayerY()) {
+            if (checkPlayerY() && tankDestroyedRef.current[0] === false) {
                 dispatch(playerMoveUp())
             }
             if (checkEnemyY() && tankDestroyedRef.current[1] === false) {
@@ -254,7 +253,7 @@ const Map = () => {
             setEnemyRotation("0deg")
             setPlayerRotation("0deg")
         } else if ((keysPressed['w'] && keysPressed['ArrowLeft'])) {
-            if (checkPlayerX()) {
+            if (checkPlayerX() && tankDestroyedRef.current[0] === false) {
                 dispatch(playerMoveLeft())
             }
             if (checkEnemyY() && tankDestroyedRef.current[1] === false) {
@@ -263,7 +262,7 @@ const Map = () => {
             setEnemyRotation("0deg")
             setPlayerRotation("270deg")
         } else if ((keysPressed['w'] && keysPressed['ArrowRight'])) {
-            if (checkPlayerX("+")) {
+            if (checkPlayerX("+") && tankDestroyedRef.current[0] === false) {
                 dispatch(playerMoveRight())
             }
             if (checkEnemyY() && tankDestroyedRef.current[1] === false) {
@@ -272,7 +271,7 @@ const Map = () => {
             setEnemyRotation("0deg")
             setPlayerRotation("90deg")
         } else if ((keysPressed['w'] && keysPressed['ArrowDown'])) {
-            if (checkPlayerY("+")) {
+            if (checkPlayerY("+") && tankDestroyedRef.current[0] === false) {
                 dispatch(playerMoveDown())
             }
             if (checkEnemyY() && tankDestroyedRef.current[1] === false) {
@@ -284,13 +283,13 @@ const Map = () => {
             if (checkEnemyX("+") && tankDestroyedRef.current[1] === false) {
                 dispatch(enemyMoveRight())
             }
-            if (checkPlayerY()) {
+            if (checkPlayerY() && tankDestroyedRef.current[0] === false) {
                 dispatch(playerMoveUp())
             }
             setEnemyRotation("90deg")
             setPlayerRotation("0deg")
         } else if ((keysPressed['d'] && keysPressed['ArrowLeft'])) {
-            if (checkPlayerX()) {
+            if (checkPlayerX() && tankDestroyedRef.current[0] === false) {
                 dispatch(playerMoveLeft())
             }
             if (checkEnemyX("+") && tankDestroyedRef.current[1] === false) {
@@ -299,7 +298,7 @@ const Map = () => {
             setEnemyRotation("90deg")
             setPlayerRotation("270deg")
         } else if ((keysPressed['d'] && keysPressed['ArrowRight'])) {
-            if (checkPlayerX("+")) {
+            if (checkPlayerX("+") && tankDestroyedRef.current[0] === false) {
                 dispatch(playerMoveRight())
             }
             if (checkEnemyX("+") && tankDestroyedRef.current[1] === false) {
@@ -311,7 +310,7 @@ const Map = () => {
             if (checkEnemyY("+") && tankDestroyedRef.current[1] === false) {
                 dispatch(enemyMoveRight())
             }
-            if (checkPlayerY("+")) {
+            if (checkPlayerY("+") && tankDestroyedRef.current[0] === false) {
                 dispatch(playerMoveDown())
             }
             setEnemyRotation("90deg")
@@ -337,22 +336,22 @@ const Map = () => {
             }
             setEnemyRotation("0deg")
         } else if (keysPressed['ArrowUp']) {
-            if (checkPlayerY()) {
+            if (checkPlayerY() && tankDestroyedRef.current[0] === false) {
                 dispatch(playerMoveUp())
             }
             setPlayerRotation("0deg")
         } else if (keysPressed['ArrowDown']) {
-            if (checkPlayerY("+")) {
+            if (checkPlayerY("+") && tankDestroyedRef.current[0] === false) {
                     dispatch(playerMoveDown())
             }
             setPlayerRotation("180deg")
         } else if (keysPressed['ArrowLeft']) {
-            if (checkPlayerX()) {
+            if (checkPlayerX() && tankDestroyedRef.current[0] === false) {
                     dispatch(playerMoveLeft())
             }
             setPlayerRotation("270deg")
         } else if (keysPressed['ArrowRight']) {
-            if (checkPlayerX("+")) {
+            if (checkPlayerX("+") && tankDestroyedRef.current[0] === false) {
                     dispatch(playerMoveRight())
             }
             setPlayerRotation("90deg")
@@ -535,6 +534,8 @@ const Map = () => {
                 </div>
                 <div className='base1' style={{}}></div>
                 <div className='base2' style={{}}></div>
+                <Walls />
+                <Walls /> 
 
             </div>
         </div>
