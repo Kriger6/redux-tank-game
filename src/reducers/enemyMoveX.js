@@ -1,4 +1,4 @@
-const enemyMoveX = (state = 330, action) => {
+const enemyMoveX = (state = 340, action) => {
     switch (action.type) {
         case 'ENEMYLEFT':
             if (state === 0) {
@@ -11,7 +11,7 @@ const enemyMoveX = (state = 330, action) => {
         case 'ENEMYSPWNLEFT':
             return state = 130
         case 'ENEMYSPWNRIGHT':
-            return state = 330
+            return state = 340
         default:
             return state;
     }

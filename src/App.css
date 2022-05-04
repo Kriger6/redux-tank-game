@@ -35,7 +35,7 @@
 /* TANKS */
 
 .tank {
-  background: #5c6141;
+  background: #71784b;
   width: 30px;
   height: 30px;
   margin-left: 130px;
@@ -64,7 +64,7 @@
   background-color: aqua;
   width: 30px;
   height: 30px;
-  margin-left: 223px;
+  margin-left: 235px;
   margin-top: 414px;
   position: absolute
 }
@@ -73,7 +73,7 @@
   background-color: brown;
   width: 30px;
   height: 30px;
-  margin-left: 223px;
+  margin-left: 235px;
   position: absolute;
 }
 
@@ -106,6 +106,7 @@
   flex-wrap: wrap;
   width: 80px;
   height: 16px;
+  position: absolute;
 }
 
 .wall {

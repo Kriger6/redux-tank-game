@@ -1,6 +1,8 @@
 import React, {useEffect, useRef, useState} from 'react'
 import { useSelector, useDispatch } from 'react-redux'
+import {v4 as uuidv4} from  'uuid'
 import Walls from '../walls/'
+import BaseWalls from '../base_walls'
 import {playerMoveLeft, 
     playerMoveRight, 
     playerMoveUp, 
@@ -35,8 +37,24 @@ const Map = () => {
     const [visibility, setVisibility] = useState(["visible", "visible"])
 
     const [tankDestroyed, setTankDestroyed] = useState([false, false])
-         
 
+
+    // CONTAINS INTERNAL WALLS
+    let firstWall = Array(32).fill(null)
+    firstWall = Array.from(firstWall, x => <div className='wall' key={uuidv4()}></div>)
+    let secondWall = Array(24).fill(null)
+    secondWall = Array.from(secondWall, x => <div className='wall' key={uuidv4()}></div>)
+    let thirdWall = Array(32).fill(null)
+    thirdWall = Array.from(thirdWall, x => <div className='wall' key={uuidv4()}></div>)
+    let fourthWall = Array(32).fill(null)
+    fourthWall = Array.from(fourthWall, x => <div className='wall' key={uuidv4()}></div>)
+    let fifthWall = Array(24).fill(null)
+    fifthWall = Array.from(fifthWall, x => <div className='wall' key={uuidv4()}></div>)
+    let sixthWall = Array(32).fill(null)
+    sixthWall = Array.from(sixthWall, x => <div className='wall' key={uuidv4()}></div>)
+    
+    const [wallsArray, setWallsArray] = useState([firstWall, secondWall, thirdWall, fourthWall, fifthWall, sixthWall])
+    
     var time 
     var keysPressed = {}
     const dispatch = useDispatch()
@@ -534,8 +552,15 @@ const Map = () => {
                 </div>
                 <div className='base1' style={{}}></div>
                 <div className='base2' style={{}}></div>
-                <Walls />
-                <Walls /> 
+                <Walls state={wallsArray[0]} mTop={40} mLeft={60} />
+                <Walls state={wallsArray[1]} mTop={70} mLeft={208}/>
+                <Walls state={wallsArray[2]} mTop={40} mLeft={360}/>
+                <Walls state={wallsArray[3]} mTop={245} mLeft={60}/>
+                <Walls state={wallsArray[4]} mTop={252} mLeft={208}/>
+                <Walls state={wallsArray[5]} mTop={245} mLeft={360}/>
+                <BaseWalls />
+                {/* <BaseWalls /> */}
+
 
             </div>
         </div>

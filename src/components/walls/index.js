@@ -4,25 +4,12 @@ import React, {useState, useEffect} from 'react'
 
 
 
-function Walls() {
-    const [wallsArray, setWallsArray] = useState()
+function Walls({state, mTop, mLeft}) {
+
     
-    var array = []
-
-    const fillArray = () => {
-        for (let i = 0; i < 32; i++) {
-            array.push(<div className='wall' key={i}></div>)
-        }
-        setWallsArray(array)
-    }
-
-    useEffect(() => {
-        fillArray()
-    }, [])
-
   return (
-      <div className='wall-container'>
-          {wallsArray}   
+      <div className='wall-container' style={{marginLeft: `${mLeft}px`, marginTop: `${mTop}px`}}>
+          {state}   
       </div>
   )
 }
