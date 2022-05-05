@@ -38,20 +38,19 @@ const Map = () => {
 
     const [tankDestroyed, setTankDestroyed] = useState([false, false])
 
-
     // CONTAINS INTERNAL WALLS
     let firstWall = Array(32).fill(null)
-    firstWall = Array.from(firstWall, x => <div className='wall' key={uuidv4()}></div>)
+    firstWall = Array.from(firstWall, x => <div className='wall' style={{visibility: "visible"}} key={uuidv4()}></div>)
     let secondWall = Array(24).fill(null)
-    secondWall = Array.from(secondWall, x => <div className='wall' key={uuidv4()}></div>)
+    secondWall = Array.from(secondWall, x => <div className='wall' style={{visibility: "visible"}} key={uuidv4()}></div>)
     let thirdWall = Array(32).fill(null)
-    thirdWall = Array.from(thirdWall, x => <div className='wall' key={uuidv4()}></div>)
+    thirdWall = Array.from(thirdWall, x => <div className='wall' style={{visibility: "visible"}} key={uuidv4()}></div>)
     let fourthWall = Array(32).fill(null)
-    fourthWall = Array.from(fourthWall, x => <div className='wall' key={uuidv4()}></div>)
+    fourthWall = Array.from(fourthWall, x => <div className='wall' style={{visibility: "visible"}} key={uuidv4()}></div>)
     let fifthWall = Array(24).fill(null)
-    fifthWall = Array.from(fifthWall, x => <div className='wall' key={uuidv4()}></div>)
+    fifthWall = Array.from(fifthWall, x => <div className='wall' style={{visibility: "visible"}} key={uuidv4()}></div>)
     let sixthWall = Array(32).fill(null)
-    sixthWall = Array.from(sixthWall, x => <div className='wall' key={uuidv4()}></div>)
+    sixthWall = Array.from(sixthWall, x => <div className='wall' style={{visibility: "visible"}} key={uuidv4()}></div>)
     
     const [wallsArray, setWallsArray] = useState([firstWall, secondWall, thirdWall, fourthWall, fifthWall, sixthWall])
     
@@ -78,9 +77,20 @@ const Map = () => {
     const tankDestroyedRef = useRef()
     tankDestroyedRef.current = tankDestroyed
 
+    const wallsRef = useRef(null)
+    wallsRef.current = wallsArray
+
     const playerTank = useRef(null)
     const enemyTank = useRef(null)
     const mapRef = useRef(null)
+
+
+    // TANK TO INTERNAL WALLS COLLISON
+
+    // const checkWalls = () => {
+    //     const value = wallsRef.current.map(x => x.map(y => console.log(y.ref.current.getBoundingClientRect())))
+    //     return value
+    // }
 
 
 
@@ -371,6 +381,7 @@ const Map = () => {
         } else if (keysPressed['ArrowRight']) {
             if (checkPlayerX("+") && tankDestroyedRef.current[0] === false) {
                     dispatch(playerMoveRight())
+                    // checkWalls()
             }
             setPlayerRotation("90deg")
         } else if (Object.keys(keysPressed.length === 0)) {
@@ -553,15 +564,13 @@ const Map = () => {
                 <div className='base1' style={{}}></div>
                 <div className='base2' style={{}}></div>
                 <Walls state={wallsArray[0]} mTop={40} mLeft={60} />
-                <Walls state={wallsArray[1]} mTop={70} mLeft={208}/>
+                <Walls state={wallsArray[1]} mTop={78} mLeft={208}/>
                 <Walls state={wallsArray[2]} mTop={40} mLeft={360}/>
                 <Walls state={wallsArray[3]} mTop={245} mLeft={60}/>
-                <Walls state={wallsArray[4]} mTop={252} mLeft={208}/>
+                <Walls state={wallsArray[4]} mTop={246} mLeft={208}/>
                 <Walls state={wallsArray[5]} mTop={245} mLeft={360}/>
-                <BaseWalls />
-                {/* <BaseWalls /> */}
-
-
+                <BaseWalls mLeft={220} />
+                <BaseWalls mLeft={-60} mTop={400} deg={180} />
             </div>
         </div>
     )
