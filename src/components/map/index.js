@@ -38,9 +38,13 @@ const Map = () => {
 
     const [tankDestroyed, setTankDestroyed] = useState([false, false])
 
+    const kobas = useRef([])
+
+    
+
     // CONTAINS INTERNAL WALLS
     let firstWall = Array(32).fill(null)
-    firstWall = Array.from(firstWall, x => <div className='wall' style={{visibility: "visible"}} key={uuidv4()}></div>)
+    firstWall = Array.from(firstWall, (x, index) => <div className='wall' ref={el => kobas.current[index] = el} style={{visibility: "visible"}} key={uuidv4()}></div>)
     let secondWall = Array(24).fill(null)
     secondWall = Array.from(secondWall, x => <div className='wall' style={{visibility: "visible"}} key={uuidv4()}></div>)
     let thirdWall = Array(32).fill(null)
@@ -87,10 +91,10 @@ const Map = () => {
 
     // TANK TO INTERNAL WALLS COLLISON
 
-    // const checkWalls = () => {
-    //     const value = wallsRef.current.map(x => x.map(y => console.log(y.ref.current.getBoundingClientRect())))
-    //     return value
-    // }
+    const checkWalls = () => {
+        const value = wallsRef.current.map(x => x.map(y => console.log(y, kobas.current[0].getBoundingClientRect(), kobas.current[1].getBoundingClientRect())))
+        return value
+    }
 
 
 
@@ -381,7 +385,7 @@ const Map = () => {
         } else if (keysPressed['ArrowRight']) {
             if (checkPlayerX("+") && tankDestroyedRef.current[0] === false) {
                     dispatch(playerMoveRight())
-                    // checkWalls()
+                    checkWalls()
             }
             setPlayerRotation("90deg")
         } else if (Object.keys(keysPressed.length === 0)) {
