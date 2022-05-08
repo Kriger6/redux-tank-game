@@ -35,18 +35,20 @@ const Map = () => {
     const [shellFlying, setShellFlying] = useState([false, false])
 
     const [visibility, setVisibility] = useState(["visible", "visible"])
-
+    
     const [tankDestroyed, setTankDestroyed] = useState([false, false])
-
+    
     const firstWallRef = useRef([])
     const secondWallRef = useRef([])
     const thirdWallRef = useRef([])
     const fourthWallRef = useRef([])
     const fifthWallRef = useRef([])
     const sixthWallRef = useRef([])
+    const playerBase = useRef([<div className='base1'style={{ visibility: "visible" }}></div>])
+    const enemyBase = useRef([<div className='base1' style={{ visibility: "visible" }}></div>])
     const wallsRef = useRef([firstWallRef, secondWallRef, thirdWallRef, fourthWallRef, fifthWallRef, sixthWallRef])
     
-
+    
     // CONTAINS INTERNAL WALLS
     let firstWall = Array(32).fill(null)
     firstWall = Array.from(firstWall, (x, index) => <div className='wall' ref={el => firstWallRef.current[index] = el} style={{visibility: "visible"}} key={uuidv4()}></div>)
@@ -67,7 +69,7 @@ const Map = () => {
     var keysPressed = {}
     const dispatch = useDispatch()
 
-
+    
     // REFS
     const myStateRef = useRef(0);
     myStateRef.current = state
@@ -86,7 +88,6 @@ const Map = () => {
     const tankDestroyedRef = useRef()
     tankDestroyedRef.current = tankDestroyed
 
-    
 
     const playerTank = useRef(null)
     const enemyTank = useRef(null)
@@ -95,16 +96,44 @@ const Map = () => {
 
     // TANK TO INTERNAL WALLS COLLISON
 
-    const checkWalls = (operator, axis) => {
-        wallsRef.current.forEach(x => x.current.forEach(y => {
+    const checkWalls = (operator, axis, tank) => {
+        let value = false
+        wallsRef.current.forEach(x => {console.log(x); x.current.forEach(y => {
             let coordinate = y.getBoundingClientRect()
-            if (playerTank.current.getBoundingClientRect().x < coordinate.x + coordinate.width &&
-                playerTank.current.getBoundingClientRect().x + playerTank.current.getBoundingClientRect().width > coordinate.x &&
-                playerTank.current.getBoundingClientRect().y < coordinate.y + coordinate.height &&
-                playerTank.current.getBoundingClientRect().height + playerTank.current.getBoundingClientRect().y > coordinate.y) {
-                console.log("collison!!");
+            if (operator === "+" && axis === "x") {
+                if (tank.current.getBoundingClientRect().x + 2 < coordinate.x + coordinate.width &&
+                    tank.current.getBoundingClientRect().x + 2 + tank.current.getBoundingClientRect().width > coordinate.x &&
+                    tank.current.getBoundingClientRect().y < coordinate.y + coordinate.height &&
+                    tank.current.getBoundingClientRect().height + tank.current.getBoundingClientRect().y > coordinate.y) {
+                    value = true
+                }
             }
-        }))
+            if (operator === "-" && axis === "x") {
+                if (tank.current.getBoundingClientRect().x - 2 < coordinate.x + coordinate.width &&
+                    tank.current.getBoundingClientRect().x - 2 + tank.current.getBoundingClientRect().width > coordinate.x &&
+                    tank.current.getBoundingClientRect().y < coordinate.y + coordinate.height &&
+                    tank.current.getBoundingClientRect().height + tank.current.getBoundingClientRect().y > coordinate.y) {
+                    value = true
+                }
+            }
+            if (operator === "+" && axis === "y") {
+                if (tank.current.getBoundingClientRect().x < coordinate.x + coordinate.width &&
+                    tank.current.getBoundingClientRect().x + tank.current.getBoundingClientRect().width > coordinate.x &&
+                    tank.current.getBoundingClientRect().y + 2 < coordinate.y + coordinate.height &&
+                    tank.current.getBoundingClientRect().height + 2 + tank.current.getBoundingClientRect().y > coordinate.y) {
+                    value = true
+                }
+            }
+            if (operator === "-" && axis === "y") {
+                if (tank.current.getBoundingClientRect().x < coordinate.x + coordinate.width &&
+                    tank.current.getBoundingClientRect().x + tank.current.getBoundingClientRect().width > coordinate.x &&
+                    tank.current.getBoundingClientRect().y - 2 < coordinate.y + coordinate.height &&
+                    tank.current.getBoundingClientRect().height - 2 + tank.current.getBoundingClientRect().y > coordinate.y) {
+                    value = true
+                }
+            }
+        })})
+        return value
     }
 
 
@@ -215,187 +244,186 @@ const Map = () => {
         // MOVEMENT CONTROLS
             
         if ((keysPressed['s'] && keysPressed['ArrowUp'])) {
-            if(checkPlayerY() && tankDestroyedRef.current[0] === false) {
+            if (checkPlayerY() && tankDestroyedRef.current[0] === false && checkWalls("-", "y", playerTank) !== true) {
                 dispatch(playerMoveUp())
             }
-            if (checkEnemyY("+") && tankDestroyedRef.current[1] === false) {
+            if (checkEnemyY("+") && tankDestroyedRef.current[1] === false && checkWalls("+", "y", enemyTank) !== true) {
                 dispatch(enemyMoveDown())
             }
             setPlayerRotation("0deg")
             setEnemyRotation("180deg")
         } else if ((keysPressed['s'] && keysPressed['ArrowDown'])) {
-            if (checkEnemyY("+") && tankDestroyedRef.current[1] === false) {
+            if (checkEnemyY("+") && tankDestroyedRef.current[1] === false && checkWalls("+", "y", enemyTank) !== true) {
                 dispatch(enemyMoveDown())
             }
-            if (checkPlayerY("+") && tankDestroyedRef.current[0] === false) {
+            if (checkPlayerY("+") && tankDestroyedRef.current[0] === false && checkWalls("+", "y", playerTank) !== true) {
                 dispatch(playerMoveDown())
             }
             setPlayerRotation("180deg")
             setEnemyRotation("180deg")
         } else if ((keysPressed['s'] && keysPressed['ArrowLeft'])) {
-            if (checkPlayerX() && tankDestroyedRef.current[0] === false) {
+            if (checkPlayerX() && tankDestroyedRef.current[0] === false && checkWalls("-", "x", playerTank) !== true) {
                 dispatch(playerMoveLeft())
             }
-            if (checkEnemyY("+") && tankDestroyedRef.current[1] === false) {
+            if (checkEnemyY("+") && tankDestroyedRef.current[1] === false && checkWalls("+", "y", enemyTank) !== true) {
                 dispatch(enemyMoveDown())
             }
             setPlayerRotation("270deg")
             setEnemyRotation("180deg") 
         } else if ((keysPressed['s'] && keysPressed['ArrowRight'])) {
-            if (checkPlayerX("+") && tankDestroyedRef.current[0] === false) {
+            if (checkPlayerX("+") && tankDestroyedRef.current[0] === false && checkWalls("+", "x", playerTank) !== true) {
                 dispatch(playerMoveRight())
             }
-            if (checkEnemyY("+") && tankDestroyedRef.current[1] === false) {
+            if (checkEnemyY("+") && tankDestroyedRef.current[1] === false && checkWalls("+", "y", enemyTank) !== true) {
                 dispatch(enemyMoveDown())
             }
             setPlayerRotation("90deg")
             setEnemyRotation("180deg")
         } else if ((keysPressed['a'] && keysPressed['ArrowDown'])) {
-            if (checkEnemyX() && tankDestroyedRef.current[1] === false) {
+            if (checkEnemyX() && tankDestroyedRef.current[1] === false && checkWalls("-", "x", playerTank) !== true) {
                     dispatch(enemyMoveLeft())
             }
-            if (checkPlayerY("+") && tankDestroyedRef.current[0] === false) {
+            if (checkPlayerY("+") && tankDestroyedRef.current[0] === false && checkWalls("+", "y", playerTank) !== true) {
                 dispatch(playerMoveDown())
             }
             setPlayerRotation("180deg")
             setEnemyRotation("270deg")
         } else if ((keysPressed['a'] && keysPressed['ArrowUp'])) {
-            if (checkEnemyX() && tankDestroyedRef.current[1] === false) {
+            if (checkEnemyX() && tankDestroyedRef.current[1] === false && checkWalls("-", "x", enemyTank) !== true) {
                 dispatch(enemyMoveLeft())
             }
-            if (checkPlayerY() && tankDestroyedRef.current[0] === false) {
+            if (checkPlayerY() && tankDestroyedRef.current[0] === false && checkWalls("-", "y", playerTank) !== true) {
                 dispatch(playerMoveUp())
             }
             setPlayerRotation("0deg")
             setEnemyRotation("270deg")
         } else if ((keysPressed['a'] && keysPressed['ArrowLeft'])) {
-            if (checkPlayerX() && tankDestroyedRef.current[0] === false) {
+            if (checkPlayerX() && tankDestroyedRef.current[0] === false && checkWalls("-", "x", playerTank) !== true) {
                 dispatch(playerMoveLeft())
             }
-            if (checkEnemyX() && tankDestroyedRef.current[1] === false) {
+            if (checkEnemyX() && tankDestroyedRef.current[1] === false && checkWalls("-", "x", enemyTank) !== true) {
                 dispatch(enemyMoveLeft())
             }
             setEnemyRotation("270deg")
             setPlayerRotation("270deg")
         } else if ((keysPressed['a'] && keysPressed['ArrowRight'])) {
-            if (checkPlayerX("+") && tankDestroyedRef.current[0] === false) {
+            if (checkPlayerX("+") && tankDestroyedRef.current[0] === false && checkWalls("+", "x", playerTank) !== true) {
                 dispatch(playerMoveRight())
             }
-            if (checkEnemyX() && tankDestroyedRef.current[1] === false) {
+            if (checkEnemyX() && tankDestroyedRef.current[1] === false && checkWalls("-", "x", enemyTank) !== true) {
                     dispatch(enemyMoveLeft())
             }
             setEnemyRotation("270deg")
             setPlayerRotation("90deg")
         } else if ((keysPressed['w'] && keysPressed['ArrowUp'])) {
-            if (checkPlayerY() && tankDestroyedRef.current[0] === false) {
+            if (checkPlayerY() && tankDestroyedRef.current[0] === false && checkWalls("-", "y", playerTank) !== true) {
                 dispatch(playerMoveUp())
             }
-            if (checkEnemyY() && tankDestroyedRef.current[1] === false) {
+            if (checkEnemyY() && tankDestroyedRef.current[1] === false && checkWalls("-", "y", enemyTank) !== true) {
                     dispatch(enemyMoveUp())
             }
             setEnemyRotation("0deg")
             setPlayerRotation("0deg")
         } else if ((keysPressed['w'] && keysPressed['ArrowLeft'])) {
-            if (checkPlayerX() && tankDestroyedRef.current[0] === false) {
+            if (checkPlayerX() && tankDestroyedRef.current[0] === false && checkWalls("-", "x", playerTank) !== true) {
                 dispatch(playerMoveLeft())
             }
-            if (checkEnemyY() && tankDestroyedRef.current[1] === false) {
+            if (checkEnemyY() && tankDestroyedRef.current[1] === false && checkWalls("-", "y", enemyTank) !== true) {
                 dispatch(enemyMoveUp())
             }
             setEnemyRotation("0deg")
             setPlayerRotation("270deg")
         } else if ((keysPressed['w'] && keysPressed['ArrowRight'])) {
-            if (checkPlayerX("+") && tankDestroyedRef.current[0] === false) {
+            if (checkPlayerX("+") && tankDestroyedRef.current[0] === false && checkWalls("+", "x", playerTank) !== true) {
                 dispatch(playerMoveRight())
             }
-            if (checkEnemyY() && tankDestroyedRef.current[1] === false) {
+            if (checkEnemyY() && tankDestroyedRef.current[1] === false && checkWalls("-", "y", enemyTank) !== true) {
                 dispatch(enemyMoveUp())
             }
             setEnemyRotation("0deg")
             setPlayerRotation("90deg")
         } else if ((keysPressed['w'] && keysPressed['ArrowDown'])) {
-            if (checkPlayerY("+") && tankDestroyedRef.current[0] === false) {
+            if (checkPlayerY("+") && tankDestroyedRef.current[0] === false && checkWalls("+", "y", playerTank) !== true) {
                 dispatch(playerMoveDown())
             }
-            if (checkEnemyY() && tankDestroyedRef.current[1] === false) {
+            if (checkEnemyY() && tankDestroyedRef.current[1] === false && checkWalls("-", "y", enemyTank) !== true) {
                 dispatch(enemyMoveUp())
             }
             setEnemyRotation("0deg")
             setPlayerRotation("180deg")
         } else if ((keysPressed['d'] && keysPressed['ArrowUp'])) {
-            if (checkEnemyX("+") && tankDestroyedRef.current[1] === false) {
+            if (checkEnemyX("+") && tankDestroyedRef.current[1] === false && checkWalls("+", "x", enemyTank) !== true) {
                 dispatch(enemyMoveRight())
             }
-            if (checkPlayerY() && tankDestroyedRef.current[0] === false) {
+            if (checkPlayerY() && tankDestroyedRef.current[0] === false && checkWalls("-", "y", playerTank) !== true) {
                 dispatch(playerMoveUp())
             }
             setEnemyRotation("90deg")
             setPlayerRotation("0deg")
         } else if ((keysPressed['d'] && keysPressed['ArrowLeft'])) {
-            if (checkPlayerX() && tankDestroyedRef.current[0] === false) {
+            if (checkPlayerX() && tankDestroyedRef.current[0] === false && checkWalls("-", "x", playerTank) !== true) {
                 dispatch(playerMoveLeft())
             }
-            if (checkEnemyX("+") && tankDestroyedRef.current[1] === false) {
+            if (checkEnemyX("+") && tankDestroyedRef.current[1] === false && checkWalls("+", "x", enemyTank) !== true) {
                 dispatch(enemyMoveRight())
             }
             setEnemyRotation("90deg")
             setPlayerRotation("270deg")
         } else if ((keysPressed['d'] && keysPressed['ArrowRight'])) {
-            if (checkPlayerX("+") && tankDestroyedRef.current[0] === false) {
+            if (checkPlayerX("+") && tankDestroyedRef.current[0] === false && checkWalls("+", "x", playerTank) !== true) {
                 dispatch(playerMoveRight())
             }
-            if (checkEnemyX("+") && tankDestroyedRef.current[1] === false) {
+            if (checkEnemyX("+") && tankDestroyedRef.current[1] === false && checkWalls("+", "x", enemyTank) !== true) {
                     dispatch(enemyMoveRight())
             }
             setEnemyRotation("90deg")
             setPlayerRotation("90deg")
         } else if ((keysPressed['d'] && keysPressed['ArrowDown'])) {
-            if (checkEnemyY("+") && tankDestroyedRef.current[1] === false) {
+            if (checkEnemyY("+") && tankDestroyedRef.current[1] === false && checkWalls("+", "y", enemyTank) !== true) {
                 dispatch(enemyMoveRight())
             }
-            if (checkPlayerY("+") && tankDestroyedRef.current[0] === false) {
+            if (checkPlayerY("+") && tankDestroyedRef.current[0] === false && checkWalls("+", "y", playerTank) !== true) {
                 dispatch(playerMoveDown())
             }
             setEnemyRotation("90deg")
             setPlayerRotation("180deg")
         } else if (keysPressed['s']) {
-            if (checkEnemyY("+") && tankDestroyedRef.current[1] === false) {
+            if (checkEnemyY("+") && tankDestroyedRef.current[1] === false && checkWalls("+", "y", enemyTank) !== true) {
                 dispatch(enemyMoveDown())
             }
             setEnemyRotation("180deg")
         } else if (keysPressed['d']) {
-            if (checkEnemyX("+") && tankDestroyedRef.current[1] === false) {
+            if (checkEnemyX("+") && tankDestroyedRef.current[1] === false && checkWalls("+", "x", enemyTank) !== true) {
                     dispatch(enemyMoveRight())
             }
             setEnemyRotation("90deg")
         } else if (keysPressed['a']) {
-            if (checkEnemyX() && tankDestroyedRef.current[1] === false) {
+            if (checkEnemyX() && tankDestroyedRef.current[1] === false && checkWalls("-", "x", enemyTank) !== true) {
                     dispatch(enemyMoveLeft())
             }
             setEnemyRotation("270deg")
         } else if (keysPressed['w']) {
-            if (checkEnemyY() && tankDestroyedRef.current[1] === false) {
+            if (checkEnemyY() && tankDestroyedRef.current[1] === false && checkWalls("-", "y", enemyTank) !== true) {
                 dispatch(enemyMoveUp())
             }
             setEnemyRotation("0deg")
         } else if (keysPressed['ArrowUp']) {
-            if (checkPlayerY() && tankDestroyedRef.current[0] === false) {
+            if (checkPlayerY() && tankDestroyedRef.current[0] === false && checkWalls("-", "y", playerTank) !== true) {
                 dispatch(playerMoveUp())
             }
             setPlayerRotation("0deg")
         } else if (keysPressed['ArrowDown']) {
-            if (checkPlayerY("+") && tankDestroyedRef.current[0] === false) {
+            if (checkPlayerY("+") && tankDestroyedRef.current[0] === false && checkWalls("+", "y", playerTank) !== true) {
                     dispatch(playerMoveDown())
             }
             setPlayerRotation("180deg")
         } else if (keysPressed['ArrowLeft']) {
-            if (checkPlayerX() && tankDestroyedRef.current[0] === false) {
+            if (checkPlayerX() && tankDestroyedRef.current[0] === false && checkWalls("-", "x", playerTank) !== true) {
                     dispatch(playerMoveLeft())
             }
             setPlayerRotation("270deg")
         } else if (keysPressed['ArrowRight']) {
-            if (checkPlayerX("+") && tankDestroyedRef.current[0] === false) {
-                    checkWalls()
+            if (checkPlayerX("+") && tankDestroyedRef.current[0] === false && checkWalls("+", "x", playerTank) !== true) {
                     dispatch(playerMoveRight())
             }
             setPlayerRotation("90deg")
@@ -576,8 +604,8 @@ const Map = () => {
                 <div ref={enemyTank} className='enemy' style={{marginLeft: `${moveEnemyX}px`, marginTop: `${moveEnemyY}px`, transform: `rotate(${enemyRotation})`, visibility: visibility[1]}}  >
                     <div className='gun'></div>
                 </div>
-                <div className='base1' style={{}}></div>
-                <div className='base2' style={{}}></div>
+                <div className='base1' ref={playerBase} style={{visibility: "visible"}}></div>
+                <div className='base2' ref={enemyBase} style={{visibility: "visible"}}></div>
                 <Walls state={wallsArray[0]} mTop={40} mLeft={60} />
                 <Walls state={wallsArray[1]} mTop={78} mLeft={208}/>
                 <Walls state={wallsArray[2]} mTop={40} mLeft={360}/>
