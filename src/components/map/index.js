@@ -44,9 +44,9 @@ const Map = () => {
     const fourthWallRef = useRef([])
     const fifthWallRef = useRef([])
     const sixthWallRef = useRef([])
-    const playerBase = useRef([<div className='base1'style={{ visibility: "visible" }}></div>])
-    const enemyBase = useRef([<div className='base1' style={{ visibility: "visible" }}></div>])
-    const wallsRef = useRef([firstWallRef, secondWallRef, thirdWallRef, fourthWallRef, fifthWallRef, sixthWallRef])
+    const basesRef = useRef([])
+    const baseWallsRef = useRef([])
+    const wallsRef = useRef([firstWallRef, secondWallRef, thirdWallRef, fourthWallRef, fifthWallRef, sixthWallRef, basesRef, baseWallsRef])
     
     
     // CONTAINS INTERNAL WALLS
@@ -62,8 +62,19 @@ const Map = () => {
     fifthWall = Array.from(fifthWall, (x, index) => <div className='wall' ref={el => fifthWallRef.current[index] = el} style={{visibility: "visible"}} key={uuidv4()}></div>)
     let sixthWall = Array(32).fill(null)
     sixthWall = Array.from(sixthWall, (x, index) => <div className='wall' ref={el => sixthWallRef.current[index] = el} style={{visibility: "visible"}} key={uuidv4()}></div>)
+
+    let baseWalls = Array(2).fill(null)
+    baseWalls = Array.from(baseWalls, (x, index) => { return (
+        <div ref={el => baseWallsRef.current[index] = el} key={uuidv4()}>
+        <div style={{display: "flex", width: "60px", justifyContent: "space-between"}} ref={el => baseWallsRef.current[index] = el}>
+                <div style={{ backgroundColor: "rgba(49, 30, 20, 0.763)", width: "10px", height: "35px", visibility: "visible" }} ref={el => baseWallsRef.current[index] = el}></div>
+                <div style={{ backgroundColor: "rgba(49, 30, 20, 0.763)", width: "10px", height: "35px", visibility: "visible" }} ref={el => baseWallsRef.current[index] = el}></div>
+        </div>
+            <div style={{ backgroundColor: "rgba(49, 30, 20, 0.763)", width: "60px", height: "10px", visibility: "visible" }} ref={el => baseWallsRef.current[index] = el}></div>
+        </div>
+    )})
     
-    const [wallsArray, setWallsArray] = useState([firstWall, secondWall, thirdWall, fourthWall, fifthWall, sixthWall])
+    const [wallsArray, setWallsArray] = useState([firstWall, secondWall, thirdWall, fourthWall, fifthWall, sixthWall, baseWalls])
     
     var time 
     var keysPressed = {}
@@ -98,7 +109,7 @@ const Map = () => {
 
     const checkWalls = (operator, axis, tank) => {
         let value = false
-        wallsRef.current.forEach(x => {console.log(x); x.current.forEach(y => {
+        wallsRef.current.forEach(x => {x.current.forEach(y => {
             let coordinate = y.getBoundingClientRect()
             if (operator === "+" && axis === "x") {
                 if (tank.current.getBoundingClientRect().x + 2 < coordinate.x + coordinate.width &&
@@ -228,7 +239,7 @@ const Map = () => {
                 preFire("player")
                 setTimeout(() => fire("player"), 4)
             }
-        } catch(err) {console.log(err);}
+        } catch(err) {}
         try {
             if (event.key === ' ') {
                 if (shellFlyingRef.current[1] === true) {
@@ -239,7 +250,7 @@ const Map = () => {
                 preFire("enemy")
                 setTimeout(() => fire("enemy"), 4)
             }
-        } catch (err) { console.log(err); }
+        } catch (err) {}
 
         // MOVEMENT CONTROLS
             
@@ -498,14 +509,22 @@ const Map = () => {
         }
     }
 
+    // const animate = (shell, setShell, tank, targetedTank, spawnLeft, spawnRight) => {
+    //     let af = requestAnimationFrame(animate)
 
+    //     if (shell.getBoundingClientRect().y < mapRef.current.getBoundingClientRect().top ||
+    //         shell.getBoundingClientRect().y > mapRef.current.getBoundingClientRect().bottom ||
+    //         shell.getBoundingClientRect().x < mapRef.current.getBoundingClientRect().left ||
+    //         shell.getBoundingClientRect().x > mapRef.current.getBoundingClientRect().right) {
+    //         setShell(null)
+    //         tank === "playerTank" ? setShellFlying([false, shellFlying[1]]) : setShellFlying([shellFlying[1], false])
+    // }
 
     const fire = (tank) => {
         if (tank === "player") {
             playerShellRef.current = (<div ref={pShell => {
                 // SHELL COLLISION DETECTION WITH WALLS AND OBJECTS
                 function animate() {
-
                     let af = requestAnimationFrame(animate)
                     
                     if (pShell.getBoundingClientRect().y < mapRef.current.getBoundingClientRect().top ||
@@ -515,7 +534,6 @@ const Map = () => {
                         setPlayerShell(null)
                         setShellFlying([false, shellFlying[1]]) 
                         window.cancelAnimationFrame(af)
-                        return
                     } else if (
                         pShell.getBoundingClientRect().x < enemyTank.current.getBoundingClientRect().x + enemyTank.current.getBoundingClientRect().width &&
                         pShell.getBoundingClientRect().x + pShell.getBoundingClientRect().width > enemyTank.current.getBoundingClientRect().x &&
@@ -547,7 +565,6 @@ const Map = () => {
         } else if(tank === "enemy") {
             enemyShellRef.current = (<div ref={eShell => {
                 function animate() {
-
                     let af = requestAnimationFrame(animate)
 
                     if (eShell.getBoundingClientRect().y < mapRef.current.getBoundingClientRect().top ||
@@ -592,7 +609,7 @@ const Map = () => {
 
     }
 
-
+    
     return (
         <div className='mapContainer'>
             <div ref={mapRef} className='map'>
@@ -604,16 +621,16 @@ const Map = () => {
                 <div ref={enemyTank} className='enemy' style={{marginLeft: `${moveEnemyX}px`, marginTop: `${moveEnemyY}px`, transform: `rotate(${enemyRotation})`, visibility: visibility[1]}}  >
                     <div className='gun'></div>
                 </div>
-                <div className='base1' ref={playerBase} style={{visibility: "visible"}}></div>
-                <div className='base2' ref={enemyBase} style={{visibility: "visible"}}></div>
+                <div className='base1' ref={el => basesRef.current[0] = el} style={{visibility: "visible"}}></div>
+                <div className='base2' ref={el => basesRef.current[1] = el} style={{visibility: "visible"}}></div>
                 <Walls state={wallsArray[0]} mTop={40} mLeft={60} />
                 <Walls state={wallsArray[1]} mTop={78} mLeft={208}/>
                 <Walls state={wallsArray[2]} mTop={40} mLeft={360}/>
                 <Walls state={wallsArray[3]} mTop={245} mLeft={60}/>
                 <Walls state={wallsArray[4]} mTop={246} mLeft={208}/>
                 <Walls state={wallsArray[5]} mTop={245} mLeft={360}/>
-                <BaseWalls mLeft={220} />
-                <BaseWalls mLeft={-60} mTop={400} deg={180} />
+                <BaseWalls state={baseWalls[0]} mLeft={220} />
+                <BaseWalls state={baseWalls[1]} mLeft={-60} mTop={400} deg={180} />
             </div>
         </div>
     )

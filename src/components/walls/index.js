@@ -1,10 +1,7 @@
-import React, {useState, useEffect} from 'react'
+import React from 'react'
 
 
-
-
-
-function Walls({state, mTop, mLeft}) {
+const Walls = ({state, mTop, mLeft}) => {
 
     
   return (
