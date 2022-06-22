@@ -114,38 +114,43 @@ const Map = () => {
 
     const checkWalls = (operator, axis, tank) => {
         let value = false
+        let tankCoordinate = tank.current.getBoundingClientRect()
         wallsRef.current.forEach(x => {
             x.current.forEach(y => {
                 let coordinate = y.getBoundingClientRect()
                 if (operator === "+" && axis === "x") {
-                    if (tank.current.getBoundingClientRect().x + 2 < coordinate.x + coordinate.width &&
-                        tank.current.getBoundingClientRect().x + 2 + tank.current.getBoundingClientRect().width > coordinate.x &&
-                        tank.current.getBoundingClientRect().y < coordinate.y + coordinate.height &&
-                        tank.current.getBoundingClientRect().height + tank.current.getBoundingClientRect().y > coordinate.y) {
+                    if (tankCoordinate.x + 2 < coordinate.x + coordinate.width &&
+                        tankCoordinate.x + 2 + tankCoordinate.width > coordinate.x &&
+                        tankCoordinate.y < coordinate.y + coordinate.height &&
+                        tankCoordinate.height + tankCoordinate.y > coordinate.y &&
+                        y.style.visibility === "visible") {
                         value = true
                     }
                 }
                 if (operator === "-" && axis === "x") {
-                    if (tank.current.getBoundingClientRect().x - 2 < coordinate.x + coordinate.width &&
-                        tank.current.getBoundingClientRect().x - 2 + tank.current.getBoundingClientRect().width > coordinate.x &&
-                        tank.current.getBoundingClientRect().y < coordinate.y + coordinate.height &&
-                        tank.current.getBoundingClientRect().height + tank.current.getBoundingClientRect().y > coordinate.y) {
+                    if (tankCoordinate.x - 2 < coordinate.x + coordinate.width &&
+                        tankCoordinate.x - 2 + tankCoordinate.width > coordinate.x &&
+                        tankCoordinate.y < coordinate.y + coordinate.height &&
+                        tankCoordinate.height + tankCoordinate.y > coordinate.y &&
+                        y.style.visibility === "visible") {
                         value = true
                     }
                 }
                 if (operator === "+" && axis === "y") {
-                    if (tank.current.getBoundingClientRect().x < coordinate.x + coordinate.width &&
-                        tank.current.getBoundingClientRect().x + tank.current.getBoundingClientRect().width > coordinate.x &&
-                        tank.current.getBoundingClientRect().y + 2 < coordinate.y + coordinate.height &&
-                        tank.current.getBoundingClientRect().height + 2 + tank.current.getBoundingClientRect().y > coordinate.y) {
+                    if (tankCoordinate.x < coordinate.x + coordinate.width &&
+                        tankCoordinate.x + tankCoordinate.width > coordinate.x &&
+                        tankCoordinate.y + 2 < coordinate.y + coordinate.height &&
+                        tankCoordinate.height + 2 + tankCoordinate.y > coordinate.y &&
+                        y.style.visibility === "visible") {
                         value = true
                     }
                 }
                 if (operator === "-" && axis === "y") {
-                    if (tank.current.getBoundingClientRect().x < coordinate.x + coordinate.width &&
-                        tank.current.getBoundingClientRect().x + tank.current.getBoundingClientRect().width > coordinate.x &&
-                        tank.current.getBoundingClientRect().y - 2 < coordinate.y + coordinate.height &&
-                        tank.current.getBoundingClientRect().height - 2 + tank.current.getBoundingClientRect().y > coordinate.y) {
+                    if (tankCoordinate.x < coordinate.x + coordinate.width &&
+                        tankCoordinate.x + tankCoordinate.width > coordinate.x &&
+                        tankCoordinate.y - 2 < coordinate.y + coordinate.height &&
+                        tankCoordinate.height - 2 + tankCoordinate.y > coordinate.y &&
+                        y.style.visibility === "visible") {
                         value = true
                     }
                 }
@@ -519,24 +524,28 @@ const Map = () => {
         }
     }
 
-    const animate = (shell, enemyTank, tank, setShell, spawnLeft, spawnRight) => {
+    const animate = (shell, enemyTank, tank, setShell, spawnLeft, spawnRight, tankRotation) => {
+        let shellCoordinate = shell.getBoundingClientRect()
+        let mapCoordinate = mapRef.current.getBoundingClientRect()
+        let enemyTankCoordinate = enemyTank.getBoundingClientRect()
+        let tankCoordinate = tank.getBoundingClientRect()
 
         var af = requestAnimationFrame(function () {
-            animate(shell, enemyTank, tank, setShell, spawnLeft, spawnRight)
+            animate(shell, enemyTank, tank, setShell, spawnLeft, spawnRight, tankRotation)
         })
 
-        if (shell.getBoundingClientRect().y < mapRef.current.getBoundingClientRect().top ||
-            shell.getBoundingClientRect().y > mapRef.current.getBoundingClientRect().bottom ||
-            shell.getBoundingClientRect().x < mapRef.current.getBoundingClientRect().left ||
-            shell.getBoundingClientRect().x > mapRef.current.getBoundingClientRect().right) {
+        if (shellCoordinate.y < mapCoordinate.top ||
+            shellCoordinate.y > mapCoordinate.bottom ||
+            shellCoordinate.x < mapCoordinate.left ||
+            shellCoordinate.x > mapCoordinate.right) {
             setShell(null)
             tank === playerTank.current ? setShellFlying([false, shellFlying[1]]) : setShellFlying([shellFlying[0], false])
             window.cancelAnimationFrame(af)
             return
-        } else if (shell.getBoundingClientRect().x < enemyTank.getBoundingClientRect().x + enemyTank.getBoundingClientRect().width &&
-            shell.getBoundingClientRect().x + shell.getBoundingClientRect().width > enemyTank.getBoundingClientRect().x &&
-            shell.getBoundingClientRect().y < enemyTank.getBoundingClientRect().y + enemyTank.getBoundingClientRect().height &&
-            shell.getBoundingClientRect().height + shell.getBoundingClientRect().y > enemyTank.getBoundingClientRect().y) {
+        } else if (shellCoordinate.x < enemyTankCoordinate.x + enemyTankCoordinate.width &&
+            shellCoordinate.x + shellCoordinate.width > enemyTankCoordinate.x &&
+            shellCoordinate.y < enemyTankCoordinate.y + enemyTankCoordinate.height &&
+            shellCoordinate.height + shellCoordinate.y > enemyTankCoordinate.y) {
             setShell(null)
             tank === playerTank.current ? setShellFlying([false, shellFlying[1]]) : setShellFlying([shellFlying[0], false])
             tank === playerTank.current ? setVisibility([visibility[0], "hidden"]) : setVisibility(["hidden", visibility[1]])
@@ -553,8 +562,26 @@ const Map = () => {
             }, 2000)
 
             window.cancelAnimationFrame(af)
+        } else if (tankCoordinate.y - mapCoordinate.y < mapCoordinate.height / 2 && (tankRotation === "90deg" || tankRotation === "270deg")) {
+            console.log(shellCoordinate);
+            wallsRef.current.forEach((x, index) => {
+                if (index > 2) {
+                    return
+                }
+                x.current.forEach(y => {
+                    let wallCoordinate = y.getBoundingClientRect()
+                    let shellCoordinate = shell.getBoundingClientRect()
+                    console.log(wallCoordinate, shellCoordinate);
+                    if (shellCoordinate.x < wallCoordinate.x + wallCoordinate.width &&
+                        shellCoordinate.x + shellCoordinate.width > wallCoordinate.x &&
+                        shellCoordinate.y < wallCoordinate.y + wallCoordinate.height &&
+                        shellCoordinate.height + shellCoordinate.y > wallCoordinate.y) {
+                        console.log("hit");
+                    }
+                })
+            })
+            window.cancelAnimationFrame(af)
         }
-
 
 
 
@@ -565,7 +592,7 @@ const Map = () => {
             playerShellRef.current = (<div ref={pShell => {
                 // SHELL COLLISION DETECTION WITH WALLS AND OBJECTS
                 if (pShell) {
-                    animate(pShell, enemyTank.current, playerTank.current, setPlayerShell, enemySpawnLeft, enemySpawnRight)
+                    animate(pShell, enemyTank.current, playerTank.current, setPlayerShell, enemySpawnLeft, enemySpawnRight, currentPlayerRotationRef.current)
                 }
             }} className='playerShell' style={shootDirection(tank, currentPlayerRotationRef)}></div>)
             setPlayerShell(playerShellRef.current)
@@ -574,7 +601,7 @@ const Map = () => {
             enemyShellRef.current = (<div ref={eShell => {
                 // SHELL COLLISION DETECTION WITH WALLS AND OBJECTS
                 if (eShell) {
-                    animate(eShell, playerTank.current, enemyTank.current, setEnemyShell, playerSpawnLeft, playerSpawnRight)
+                    animate(eShell, playerTank.current, enemyTank.current, setEnemyShell, playerSpawnLeft, playerSpawnRight, currentEnemyRotationRef.current)
                 }
 
             }} className='enemyShell' style={shootDirection(tank, currentEnemyRotationRef)}></div>)
