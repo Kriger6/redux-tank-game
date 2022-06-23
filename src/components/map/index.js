@@ -562,27 +562,74 @@ const Map = () => {
             }, 2000)
 
             window.cancelAnimationFrame(af)
-        } else if (tankCoordinate.y - mapCoordinate.y < mapCoordinate.height / 2 && (tankRotation === "90deg" || tankRotation === "270deg")) {
-            console.log(shellCoordinate);
+        }
+        else if (tankCoordinate.y - mapCoordinate.y < mapCoordinate.height / 2 && (tankRotation === "90deg" || tankRotation === "270deg")) {
             wallsRef.current.forEach((x, index) => {
+                console.log(wallsRef.current[7].current[0]);
                 if (index > 2) {
                     return
                 }
-                x.current.forEach(y => {
+                x.current.forEach((y, id) => {
                     let wallCoordinate = y.getBoundingClientRect()
                     let shellCoordinate = shell.getBoundingClientRect()
-                    console.log(wallCoordinate, shellCoordinate);
-                    if (shellCoordinate.x < wallCoordinate.x + wallCoordinate.width &&
-                        shellCoordinate.x + shellCoordinate.width > wallCoordinate.x &&
-                        shellCoordinate.y < wallCoordinate.y + wallCoordinate.height &&
-                        shellCoordinate.height + shellCoordinate.y > wallCoordinate.y) {
-                        console.log("hit");
+                    if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
+                        wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
+                        wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
+                        wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && y.style.visibility === "visible") {
+                        setShell(null)
+                        console.log(id, x.current[id]);
+                        y.style.visibility = "hidden"
+                        x.current[id + 4].style.visibility = "hidden"
+                        x.current[id + 8].style.visibility = "hidden"
+                        x.current[id + 12].style.visibility = "hidden"
+
                     }
                 })
             })
-            window.cancelAnimationFrame(af)
-        }
+        } else if (tankCoordinate.y - mapCoordinate.y > mapCoordinate.height / 2 && (tankRotation === "90deg" || tankRotation === "270deg")) {
+            wallsRef.current.forEach((x, index) => {
+                if (index < 2 || index > 5) {
+                    return
+                }
+                x.current.forEach((y, i) => {
+                    let wallCoordinate = y.getBoundingClientRect()
+                    let shellCoordinate = shell.getBoundingClientRect()
+                    if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
+                        wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
+                        wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
+                        wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && y.style.visibility === "visible") {
+                        setShell(null)
+                        console.log(i, x.current[i]);
+                        y.style.visibility = "hidden"
+                        x.current[i + 4].style.visibility = "hidden"
+                        x.current[i + 8].style.visibility = "hidden"
+                        x.current[i + 12].style.visibility = "hidden"
 
+                    }
+                })
+            })
+        } else if (tankRotation === "0deg" || tankRotation === "1800deg") {
+            wallsRef.current.forEach((x, index) => {
+                if (index > 5) {
+                    return
+                }
+                x.current.forEach((y, i) => {
+                    let wallCoordinate = y.getBoundingClientRect()
+                    let shellCoordinate = shell.getBoundingClientRect()
+                    if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
+                        wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
+                        wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
+                        wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && y.style.visibility === "visible") {
+                        setShell(null)
+                        console.log(i, x.current[i]);
+                        y.style.visibility = "hidden"
+                        x.current[i + 1].style.visibility = "hidden"
+                        x.current[i + 2].style.visibility = "hidden"
+                        x.current[i + 3].style.visibility = "hidden"
+                    }
+                })
+            })
+        }
 
 
 

@@ -3,11 +3,11 @@ const enemyMoveY = (state = 0, action) => {
         case 'ENEMYUP':
             if (state === 0) {
                 return state
-            } else return state - 2
+            } else return state - 4
         case 'ENEMYDOWN':
             if (state === 414) {
                 return state
-            } else return state + 2
+            } else return state + 4
         case 'ENEMYSPWNLEFT':
             return state = 0
         case 'ENEMYSPWNRIGHT':

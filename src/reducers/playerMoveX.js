@@ -3,11 +3,11 @@ const playerMoveX = (state = 130, action) => {
         case 'MOVELEFT':
             if(state === 0) {
                 return state
-            } else return state - 2
+            } else return state - 4
         case 'MOVERIGHT':
             if (state === 470) {
                 return state
-            } else return state + 2
+            } else return state + 4
         case 'PLAYERSPWNLEFT':
             return state = 130
         case 'PLAYERSPWNRIGHT':
