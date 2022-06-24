@@ -71,15 +71,15 @@ const Map = () => {
         return (
             <div ref={el => baseWallsRef.current[index] = el} key={uuidv4()}>
                 <div style={{ display: "flex", width: "60px", justifyContent: "space-between" }} ref={el => baseWallsRef.current[index] = el}>
-                    <div style={{ backgroundColor: "rgba(49, 30, 20, 0.763)", width: "10px", height: "35px", visibility: "visible" }} ref={el => baseWallsRef.current[index] = el}></div>
-                    <div style={{ backgroundColor: "rgba(49, 30, 20, 0.763)", width: "10px", height: "35px", visibility: "visible" }} ref={el => baseWallsRef.current[index] = el}></div>
+                    <div style={{ backgroundColor: "rgba(49, 30, 20, 0.763)", width: "10px", height: "35px", visibility: "visible" }} ref={el => baseWallsRef.current[index] = el} key={uuidv4()}></div>
+                    <div style={{ backgroundColor: "rgba(49, 30, 20, 0.763)", width: "10px", height: "35px", visibility: "visible" }} ref={el => baseWallsRef.current[index] = el} key={uuidv4()}></div>
                 </div>
                 <div style={{ backgroundColor: "rgba(49, 30, 20, 0.763)", width: "60px", height: "10px", visibility: "visible" }} ref={el => baseWallsRef.current[index] = el}></div>
             </div>
         )
     })
 
-    const [wallsArray, setWallsArray] = useState([firstWall, secondWall, thirdWall, fourthWall, fifthWall, sixthWall, baseWalls])
+    const [wallsArray, setWallsArray] = useState([firstWall, secondWall, thirdWall, fourthWall, fifthWall, sixthWall, baseWalls[0], baseWalls[1]])
 
     var time
     var keysPressed = {}
@@ -565,7 +565,6 @@ const Map = () => {
         }
         else if (tankCoordinate.y - mapCoordinate.y < mapCoordinate.height / 2 && (tankRotation === "90deg" || tankRotation === "270deg")) {
             wallsRef.current.forEach((x, index) => {
-                console.log(wallsRef.current[7].current[0]);
                 if (index > 2) {
                     return
                 }
@@ -608,7 +607,7 @@ const Map = () => {
                     }
                 })
             })
-        } else if (tankRotation === "0deg" || tankRotation === "1800deg") {
+        } else if (tankRotation === "0deg" || tankRotation === "180deg") {
             wallsRef.current.forEach((x, index) => {
                 if (index > 5) {
                     return
@@ -629,6 +628,34 @@ const Map = () => {
                     }
                 })
             })
+        } 
+        if (tankRotation === "90deg" || tankRotation === "270deg") {
+            try {
+                console.log(wallsRef.current[7].current[0]);
+                for (let index = 0; index < 2; index++) {
+                    let shellCoordinate = shell.getBoundingClientRect()
+                    let wallCoordinate = wallsRef.current[7].current[0].children[0].children[index].getBoundingClientRect()
+                    if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
+                    wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
+                    wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
+                    wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && wallsRef.current[7].current[0].children[0].children[index].style.visibility === "visible") {
+                        setShell(null)
+                        wallsRef.current[7].current[0].children[0].children[index].style.visibility = "hidden"
+                }
+                }
+                for (let index = 0; index < 2; index++) {
+                    let shellCoordinate = shell.getBoundingClientRect()
+                    let wallCoordinate = wallsRef.current[7].current[1].children[0].children[index].getBoundingClientRect()
+                    if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
+                        wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
+                        wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
+                        wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && wallsRef.current[7].current[1].children[0].children[index].style.visibility === "visible") {
+                        setShell(null)
+                        wallsRef.current[7].current[1].children[0].children[index].style.visibility = "hidden"
+                    }
+                }
+
+            } catch(err) {console.log(err);}
         }
 
 
@@ -678,8 +705,8 @@ const Map = () => {
                 <Walls state={wallsArray[3]} mTop={245} mLeft={60} />
                 <Walls state={wallsArray[4]} mTop={246} mLeft={208} />
                 <Walls state={wallsArray[5]} mTop={245} mLeft={360} />
-                <BaseWalls state={baseWalls[0]} mLeft={220} />
-                <BaseWalls state={baseWalls[1]} mLeft={-60} mTop={400} deg={180} />
+                <BaseWalls state={wallsArray[6]} mLeft={220} />
+                <BaseWalls state={wallsArray[7]} mLeft={-60} mTop={400} deg={180} />
             </div>
         </div>
     )
