@@ -69,7 +69,7 @@ const Map = () => {
     let baseWalls = Array(2).fill(null)
     baseWalls = Array.from(baseWalls, (x, index) => {
         return (
-            <div ref={el => baseWallsRef.current[index] = el} key={uuidv4()}>
+            <div style={{visibility: "visible"}} ref={el => baseWallsRef.current[index] = el} key={uuidv4()}>
                 <div style={{ display: "flex", width: "60px", justifyContent: "space-between" }} ref={el => baseWallsRef.current[index] = el}>
                     <div style={{ backgroundColor: "rgba(49, 30, 20, 0.763)", width: "10px", height: "35px", visibility: "visible" }} ref={el => baseWallsRef.current[index] = el} key={uuidv4()}></div>
                     <div style={{ backgroundColor: "rgba(49, 30, 20, 0.763)", width: "10px", height: "35px", visibility: "visible" }} ref={el => baseWallsRef.current[index] = el} key={uuidv4()}></div>
@@ -79,7 +79,7 @@ const Map = () => {
         )
     })
 
-    const [wallsArray, setWallsArray] = useState([firstWall, secondWall, thirdWall, fourthWall, fifthWall, sixthWall, baseWalls[0], baseWalls[1]])
+    const [wallsArray] = useState([firstWall, secondWall, thirdWall, fourthWall, fifthWall, sixthWall, baseWalls[0], baseWalls[1]])
 
     var time
     var keysPressed = {}
@@ -524,6 +524,8 @@ const Map = () => {
         }
     }
 
+    // ANIMATE SHELL COLLISION WITH OBJECTS
+
     const animate = (shell, enemyTank, tank, setShell, spawnLeft, spawnRight, tankRotation) => {
         let shellCoordinate = shell.getBoundingClientRect()
         let mapCoordinate = mapRef.current.getBoundingClientRect()
@@ -533,6 +535,31 @@ const Map = () => {
         var af = requestAnimationFrame(function () {
             animate(shell, enemyTank, tank, setShell, spawnLeft, spawnRight, tankRotation)
         })
+
+        try {
+            for (let index = 0; index < 2; index++) {
+                console.log(wallsRef.current[6].current[index].getBoundingClientRect());
+                let wallCoordinate = wallsRef.current[6].current[index].getBoundingClientRect()
+                if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
+                    wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
+                    wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
+                    wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && wallsRef.current[6].current[index].style.visibility === "visible") {
+                    setShell(null)
+                    wallsRef.current[6].current[index].style.visibility = "hidden"
+                }
+            }
+        } catch(err) {console.log(err);}
+ 
+        for (let index = 0; index < 2; index++) {
+            let wallCoordinate = wallsRef.current[7].current[index].children[1].getBoundingClientRect()
+            if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
+                wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
+                wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
+                wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && wallsRef.current[7].current[index].children[1].style.visibility === "visible") {
+                setShell(null)
+                wallsRef.current[7].current[index].children[1].style.visibility = "hidden"
+            }
+        }
 
         if (shellCoordinate.y < mapCoordinate.top ||
             shellCoordinate.y > mapCoordinate.bottom ||
@@ -564,19 +591,27 @@ const Map = () => {
             window.cancelAnimationFrame(af)
         }
         else if (tankCoordinate.y - mapCoordinate.y < mapCoordinate.height / 2 && (tankRotation === "90deg" || tankRotation === "270deg")) {
+            for (let index = 0; index < 2; index++) {
+                let wallCoordinate = wallsRef.current[7].current[0].children[0].children[index].getBoundingClientRect()
+                if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
+                    wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
+                    wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
+                    wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && wallsRef.current[7].current[0].children[0].children[index].style.visibility === "visible") {
+                    setShell(null)
+                    wallsRef.current[7].current[0].children[0].children[index].style.visibility = "hidden"
+                }
+            }
             wallsRef.current.forEach((x, index) => {
                 if (index > 2) {
                     return
                 }
                 x.current.forEach((y, id) => {
                     let wallCoordinate = y.getBoundingClientRect()
-                    let shellCoordinate = shell.getBoundingClientRect()
                     if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
                         wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
                         wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
                         wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && y.style.visibility === "visible") {
                         setShell(null)
-                        console.log(id, x.current[id]);
                         y.style.visibility = "hidden"
                         x.current[id + 4].style.visibility = "hidden"
                         x.current[id + 8].style.visibility = "hidden"
@@ -586,19 +621,27 @@ const Map = () => {
                 })
             })
         } else if (tankCoordinate.y - mapCoordinate.y > mapCoordinate.height / 2 && (tankRotation === "90deg" || tankRotation === "270deg")) {
+            for (let index = 0; index < 2; index++) {
+                let wallCoordinate = wallsRef.current[7].current[1].children[0].children[index].getBoundingClientRect()
+                if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
+                    wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
+                    wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
+                    wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && wallsRef.current[7].current[1].children[0].children[index].style.visibility === "visible") {
+                    setShell(null)
+                    wallsRef.current[7].current[1].children[0].children[index].style.visibility = "hidden"
+                }
+            }
             wallsRef.current.forEach((x, index) => {
                 if (index < 2 || index > 5) {
                     return
                 }
                 x.current.forEach((y, i) => {
                     let wallCoordinate = y.getBoundingClientRect()
-                    let shellCoordinate = shell.getBoundingClientRect()
                     if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
                         wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
                         wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
                         wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && y.style.visibility === "visible") {
                         setShell(null)
-                        console.log(i, x.current[i]);
                         y.style.visibility = "hidden"
                         x.current[i + 4].style.visibility = "hidden"
                         x.current[i + 8].style.visibility = "hidden"
@@ -606,6 +649,7 @@ const Map = () => {
 
                     }
                 })
+
             })
         } else if (tankRotation === "0deg" || tankRotation === "180deg") {
             wallsRef.current.forEach((x, index) => {
@@ -614,13 +658,11 @@ const Map = () => {
                 }
                 x.current.forEach((y, i) => {
                     let wallCoordinate = y.getBoundingClientRect()
-                    let shellCoordinate = shell.getBoundingClientRect()
                     if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
                         wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
                         wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
                         wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && y.style.visibility === "visible") {
                         setShell(null)
-                        console.log(i, x.current[i]);
                         y.style.visibility = "hidden"
                         x.current[i + 1].style.visibility = "hidden"
                         x.current[i + 2].style.visibility = "hidden"
@@ -628,37 +670,17 @@ const Map = () => {
                     }
                 })
             })
-        } 
-        if (tankRotation === "90deg" || tankRotation === "270deg") {
-            try {
-                console.log(wallsRef.current[7].current[0]);
-                for (let index = 0; index < 2; index++) {
-                    let shellCoordinate = shell.getBoundingClientRect()
-                    let wallCoordinate = wallsRef.current[7].current[0].children[0].children[index].getBoundingClientRect()
-                    if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
+            for (let index = 0; index < 2; index++) {
+                let wallCoordinate = wallsRef.current[7].current[index].children[1].getBoundingClientRect()
+                if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
                     wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
                     wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
-                    wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && wallsRef.current[7].current[0].children[0].children[index].style.visibility === "visible") {
-                        setShell(null)
-                        wallsRef.current[7].current[0].children[0].children[index].style.visibility = "hidden"
+                    wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && wallsRef.current[7].current[index].children[1].style.visibility === "visible") {
+                    setShell(null)
+                    wallsRef.current[7].current[index].children[1].style.visibility = "hidden"
                 }
-                }
-                for (let index = 0; index < 2; index++) {
-                    let shellCoordinate = shell.getBoundingClientRect()
-                    let wallCoordinate = wallsRef.current[7].current[1].children[0].children[index].getBoundingClientRect()
-                    if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
-                        wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
-                        wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
-                        wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && wallsRef.current[7].current[1].children[0].children[index].style.visibility === "visible") {
-                        setShell(null)
-                        wallsRef.current[7].current[1].children[0].children[index].style.visibility = "hidden"
-                    }
-                }
-
-            } catch(err) {console.log(err);}
-        }
-
-
+            }
+        } 
 
     }
     const fire = (tank) => {
