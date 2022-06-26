@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { v4 as uuidv4 } from 'uuid'
 import Walls from '../walls/'
 import BaseWalls from '../base_walls'
+import GameOver from '../game_over'
 import {
     playerMoveLeft,
     playerMoveRight,
@@ -39,6 +40,8 @@ const Map = () => {
     const [visibility, setVisibility] = useState(["visible", "visible"])
 
     const [tankDestroyed, setTankDestroyed] = useState([false, false])
+
+    const [message, setMessage] = useState(null)
 
 
     const firstWallRef = useRef([])
@@ -538,7 +541,6 @@ const Map = () => {
 
         try {
             for (let index = 0; index < 2; index++) {
-                console.log(wallsRef.current[6].current[index].getBoundingClientRect());
                 let wallCoordinate = wallsRef.current[6].current[index].getBoundingClientRect()
                 if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
                     wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
@@ -546,6 +548,12 @@ const Map = () => {
                     wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && wallsRef.current[6].current[index].style.visibility === "visible") {
                     setShell(null)
                     wallsRef.current[6].current[index].style.visibility = "hidden"
+                    if (index === 0) {
+                            setMessage("Enemy wins! Click on the button to restart the game")
+                        
+                    } else {
+                            setMessage("Player wins! Click on the button to restart the game")
+                    }
                 }
             }
         } catch(err) {console.log(err);}
@@ -708,6 +716,7 @@ const Map = () => {
     }
 
 
+
     return (
         <div className='mapContainer'>
             <div ref={mapRef} className='map'>
@@ -730,6 +739,7 @@ const Map = () => {
                 <BaseWalls state={wallsArray[6]} mLeft={220} />
                 <BaseWalls state={wallsArray[7]} mLeft={-60} mTop={400} deg={180} />
             </div>
+            {message && <GameOver state={message}/>}
         </div>
     )
 }
