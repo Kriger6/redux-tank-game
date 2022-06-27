@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { v4 as uuidv4 } from 'uuid'
 import Walls from '../walls/'
@@ -84,8 +84,9 @@ const Map = () => {
 
     const [wallsArray] = useState([firstWall, secondWall, thirdWall, fourthWall, fifthWall, sixthWall, baseWalls[0], baseWalls[1]])
 
-    var time
-    var keysPressed = {}
+    var keysPressed = useMemo(() => {
+        return {}
+    }, [])
     const dispatch = useDispatch()
 
 
@@ -93,7 +94,7 @@ const Map = () => {
     const myStateRef = useRef(0);
     myStateRef.current = state
 
-
+    var time = useRef()
     const playerShellRef = useRef()
     const enemyShellRef = useRef()
     const shellFlyingRef = useRef(false)
@@ -224,11 +225,219 @@ const Map = () => {
     }
 
 
+    // ANIMATE SHELL COLLISION WITH OBJECTS
 
+    const animate = useCallback((shell, enemyTank, tank, setShell, spawnLeft, spawnRight, tankRotation) => {
+        let shellCoordinate = shell.getBoundingClientRect()
+        let mapCoordinate = mapRef.current.getBoundingClientRect()
+        let enemyTankCoordinate = enemyTank.getBoundingClientRect()
+        let tankCoordinate = tank.getBoundingClientRect()
+
+        var af = requestAnimationFrame(function () {
+            animate(shell, enemyTank, tank, setShell, spawnLeft, spawnRight, tankRotation)
+        })
+
+        try {
+            for (let index = 0; index < 2; index++) {
+                let wallCoordinate = wallsRef.current[6].current[index].getBoundingClientRect()
+                if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
+                    wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
+                    wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
+                    wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && wallsRef.current[6].current[index].style.visibility === "visible") {
+                    setShell(null)
+                    wallsRef.current[6].current[index].style.visibility = "hidden"
+                    if (index === 0) {
+                        setMessage("Enemy wins! Click on the button to restart the game")
+
+                    } else {
+                        setMessage("Player wins! Click on the button to restart the game")
+                    }
+                }
+            }
+        } catch (err) {}
+
+        for (let index = 0; index < 2; index++) {
+            let wallCoordinate = wallsRef.current[7].current[index].children[1].getBoundingClientRect()
+            if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
+                wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
+                wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
+                wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && wallsRef.current[7].current[index].children[1].style.visibility === "visible") {
+                setShell(null)
+                wallsRef.current[7].current[index].children[1].style.visibility = "hidden"
+            }
+        }
+
+        if (shellCoordinate.y < mapCoordinate.top ||
+            shellCoordinate.y > mapCoordinate.bottom ||
+            shellCoordinate.x < mapCoordinate.left ||
+            shellCoordinate.x > mapCoordinate.right) {
+            setShell(null)
+            tank === playerTank.current ? setShellFlying([false, shellFlying[1]]) : setShellFlying([shellFlying[0], false])
+            window.cancelAnimationFrame(af)
+            return
+        } else if (shellCoordinate.x < enemyTankCoordinate.x + enemyTankCoordinate.width &&
+            shellCoordinate.x + shellCoordinate.width > enemyTankCoordinate.x &&
+            shellCoordinate.y < enemyTankCoordinate.y + enemyTankCoordinate.height &&
+            shellCoordinate.height + shellCoordinate.y > enemyTankCoordinate.y) {
+            setShell(null)
+            tank === playerTank.current ? setShellFlying([false, shellFlying[1]]) : setShellFlying([shellFlying[0], false])
+            tank === playerTank.current ? setVisibility([visibility[0], "hidden"]) : setVisibility(["hidden", visibility[1]])
+            if (tank.getBoundingClientRect().x < mapRef.current.getBoundingClientRect().width / 2 + mapRef.current.getBoundingClientRect().x) {
+                dispatch(spawnRight())
+            } else {
+                dispatch(spawnLeft())
+            }
+            tank === playerTank.current ? setTankDestroyed([tankDestroyed[0], true]) : setTankDestroyed([true, tankDestroyed[1]])
+            setTimeout(() => {
+                tank === playerTank.current ? setVisibility([visibility[0], "visible"]) : setVisibility(["visible", visibility[1]])
+                tank === playerTank.current ? setEnemyRotation("180deg") : setPlayerRotation("0deg")
+                tank === playerTank.current ? setTankDestroyed([tankDestroyed[0], false]) : setTankDestroyed([false, tankDestroyed[1]])
+            }, 2000)
+
+            window.cancelAnimationFrame(af)
+        }
+        else if (tankCoordinate.y - mapCoordinate.y < mapCoordinate.height / 2 && (tankRotation === "90deg" || tankRotation === "270deg")) {
+            for (let index = 0; index < 2; index++) {
+                let wallCoordinate = wallsRef.current[7].current[0].children[0].children[index].getBoundingClientRect()
+                if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
+                    wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
+                    wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
+                    wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && wallsRef.current[7].current[0].children[0].children[index].style.visibility === "visible") {
+                    setShell(null)
+                    wallsRef.current[7].current[0].children[0].children[index].style.visibility = "hidden"
+                }
+            }
+            wallsRef.current.forEach((x, index) => {
+                if (index > 2) {
+                    return
+                }
+                x.current.forEach((y, id) => {
+                    let wallCoordinate = y.getBoundingClientRect()
+                    if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
+                        wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
+                        wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
+                        wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && y.style.visibility === "visible") {
+                        setShell(null)
+                        y.style.visibility = "hidden"
+                        x.current[id + 4].style.visibility = "hidden"
+                        x.current[id + 8].style.visibility = "hidden"
+                        x.current[id + 12].style.visibility = "hidden"
+
+                    }
+                })
+            })
+        } else if (tankCoordinate.y - mapCoordinate.y > mapCoordinate.height / 2 && (tankRotation === "90deg" || tankRotation === "270deg")) {
+            for (let index = 0; index < 2; index++) {
+                let wallCoordinate = wallsRef.current[7].current[1].children[0].children[index].getBoundingClientRect()
+                if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
+                    wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
+                    wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
+                    wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && wallsRef.current[7].current[1].children[0].children[index].style.visibility === "visible") {
+                    setShell(null)
+                    wallsRef.current[7].current[1].children[0].children[index].style.visibility = "hidden"
+                }
+            }
+            wallsRef.current.forEach((x, index) => {
+                if (index < 2 || index > 5) {
+                    return
+                }
+                x.current.forEach((y, i) => {
+                    let wallCoordinate = y.getBoundingClientRect()
+                    if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
+                        wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
+                        wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
+                        wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && y.style.visibility === "visible") {
+                        setShell(null)
+                        y.style.visibility = "hidden"
+                        x.current[i + 4].style.visibility = "hidden"
+                        x.current[i + 8].style.visibility = "hidden"
+                        x.current[i + 12].style.visibility = "hidden"
+
+                    }
+                })
+
+            })
+        } else if (tankRotation === "0deg" || tankRotation === "180deg") {
+            wallsRef.current.forEach((x, index) => {
+                if (index > 5) {
+                    return
+                }
+                x.current.forEach((y, i) => {
+                    let wallCoordinate = y.getBoundingClientRect()
+                    if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
+                        wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
+                        wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
+                        wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && y.style.visibility === "visible") {
+                        setShell(null)
+                        y.style.visibility = "hidden"
+                        x.current[i + 1].style.visibility = "hidden"
+                        x.current[i + 2].style.visibility = "hidden"
+                        x.current[i + 3].style.visibility = "hidden"
+                    }
+                })
+            })
+            for (let index = 0; index < 2; index++) {
+                let wallCoordinate = wallsRef.current[7].current[index].children[1].getBoundingClientRect()
+                if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
+                    wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
+                    wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
+                    wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && wallsRef.current[7].current[index].children[1].style.visibility === "visible") {
+                    setShell(null)
+                    wallsRef.current[7].current[index].children[1].style.visibility = "hidden"
+                }
+            }
+        }
+
+    }, [dispatch, shellFlying, tankDestroyed, visibility])
+
+    // FIRING SHELLS 
+
+    const preFire = (tank) => {
+        if (tank === "player") {
+            setPlayerShell(<div className={[tank + "Shell"]} style={{
+                marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
+                marginTop: currentShellPositionRef.current[tank + "MoveY"],
+                width: "8px"
+            }}></div>)
+        } else {
+            setEnemyShell(<div className={[tank + "Shell"]} style={{
+                marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
+                marginTop: currentShellPositionRef.current[tank + "MoveY"],
+                width: "8px"
+            }}></div>)
+        }
+    }
+    
+    const fire = useCallback((tank) => {
+        if (tank === "player") {
+            playerShellRef.current = (<div ref={pShell => {
+                // SHELL COLLISION DETECTION WITH WALLS AND OBJECTS
+                if (pShell) {
+                    animate(pShell, enemyTank.current, playerTank.current, setPlayerShell, enemySpawnLeft, enemySpawnRight, currentPlayerRotationRef.current)
+                }
+            }} className='playerShell' style={shootDirection(tank, currentPlayerRotationRef)}></div>)
+            setPlayerShell(playerShellRef.current)
+            setShellFlying([true, shellFlying[1]])
+        } else if (tank === "enemy") {
+            enemyShellRef.current = (<div ref={eShell => {
+                // SHELL COLLISION DETECTION WITH WALLS AND OBJECTS
+                if (eShell) {
+                    animate(eShell, playerTank.current, enemyTank.current, setEnemyShell, playerSpawnLeft, playerSpawnRight, currentEnemyRotationRef.current)
+                }
+
+            }} className='enemyShell' style={shootDirection(tank, currentEnemyRotationRef)}></div>)
+            setEnemyShell(enemyShellRef.current)
+            setShellFlying([shellFlying[0], true])
+        }
+        
+    }, [animate, shellFlying])
+    
     // TANK MOVEMENT CONTROLS AND COLLISION DETECTION
 
-
-    const move = (event) => {
+    const move = useCallback((event) => {
+        if (message) {
+            return
+        }
         try {
             if (event.key === 'CapsLock') {
                 return
@@ -239,30 +448,55 @@ const Map = () => {
         } catch (err) { }
         try {
             if (event.type !== "keyup") {
-                clearInterval(time)
-                time = undefined
-                event.key.startsWith('Ar') ? keysPressed[event.key] = true : keysPressed[event.key.toLowerCase()] = true;
+                clearInterval(time.current)
+                time.current = undefined
+                event.key.startsWith('Ar') || event.key.startsWith('En') ? keysPressed[event.key] = true : keysPressed[event.key.toLowerCase()] = true;
             }
         } catch (err) { }
 
         // FIRING CONTROLS
+        try {
+            if (keysPressed['Enter'] && keysPressed[' ']) {
+                if (shellFlyingRef.current[0] === true && shellFlyingRef.current[1] === true) {
+                    return
+                } 
+                if (shellFlyingRef.current[0] !== true) {
+                    keysPressed[event.key] = true
+                    setCurrentShellPosition(myStateRef.current)
+                    preFire("player")
+                    setTimeout(() => {
+                        fire("player")
+                    }, 4)
+                }
+                if (shellFlyingRef.current[1] !== true) {
+                    keysPressed[event.key] = true
+                    setCurrentShellPosition(myStateRef.current)
+                    preFire("enemy")
+                    setTimeout(() => {
+                        fire("enemy")
+                    }, 4)
+                }
+            }
+        } catch(err) {console.log(err);}
 
         try {
             if (event.key === 'Enter') {
                 if (shellFlyingRef.current[0] === true) {
                     return
                 } else {
+                    keysPressed[event.key] = true
                     setCurrentShellPosition(myStateRef.current)
                 }
                 preFire("player")
                 setTimeout(() => fire("player"), 4)
             }
-        } catch (err) { }
+        } catch (err) { console.log(err);}
         try {
             if (event.key === ' ') {
                 if (shellFlyingRef.current[1] === true) {
                     return
                 } else {
+                    keysPressed[event.key] = true
                     setCurrentShellPosition(myStateRef.current)
                 }
                 preFire("enemy")
@@ -457,24 +691,24 @@ const Map = () => {
             }
             setPlayerRotation("90deg")
         } else if (Object.keys(keysPressed.length === 0)) {
-            clearInterval(time)
-            time = undefined
+            clearInterval(time.current)
+            time.current = undefined
             return
         }
-    }
+    }, [dispatch, fire, message, keysPressed])
 
     // KEY UP DETECTION
-    const keyUp = (event) => {
+    const keyUp = useCallback((event) => {
         event.stopImmediatePropagation()
         try { delete keysPressed[event.key]; } catch (error) { console.log(error); }
-        if (!time) {
-            time = setInterval(move, 50)
+        if (!time.current) {
+            time.current = setInterval(move, 50)
         }
-    }
+    }, [keysPressed, move])
     useEffect(() => {
         document.addEventListener('keydown', move)
         document.addEventListener('keyup', keyUp)
-    })
+    }, [move, keyUp])
 
 
     // SHOOTING DIRECTIONS 
@@ -509,217 +743,10 @@ const Map = () => {
     }
 
 
-    // FIRING SHELLS 
-
-    const preFire = (tank) => {
-        if (tank === "player") {
-            setPlayerShell(<div className={[tank + "Shell"]} style={{
-                marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
-                marginTop: currentShellPositionRef.current[tank + "MoveY"],
-                width: "8px"
-            }}></div>)
-        } else {
-            setEnemyShell(<div className={[tank + "Shell"]} style={{
-                marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
-                marginTop: currentShellPositionRef.current[tank + "MoveY"],
-                width: "8px"
-            }}></div>)
-        }
-    }
-
-    // ANIMATE SHELL COLLISION WITH OBJECTS
-
-    const animate = (shell, enemyTank, tank, setShell, spawnLeft, spawnRight, tankRotation) => {
-        let shellCoordinate = shell.getBoundingClientRect()
-        let mapCoordinate = mapRef.current.getBoundingClientRect()
-        let enemyTankCoordinate = enemyTank.getBoundingClientRect()
-        let tankCoordinate = tank.getBoundingClientRect()
-
-        var af = requestAnimationFrame(function () {
-            animate(shell, enemyTank, tank, setShell, spawnLeft, spawnRight, tankRotation)
-        })
-
-        try {
-            for (let index = 0; index < 2; index++) {
-                let wallCoordinate = wallsRef.current[6].current[index].getBoundingClientRect()
-                if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
-                    wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
-                    wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
-                    wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && wallsRef.current[6].current[index].style.visibility === "visible") {
-                    setShell(null)
-                    wallsRef.current[6].current[index].style.visibility = "hidden"
-                    if (index === 0) {
-                            setMessage("Enemy wins! Click on the button to restart the game")
-                        
-                    } else {
-                            setMessage("Player wins! Click on the button to restart the game")
-                    }
-                }
-            }
-        } catch(err) {console.log(err);}
- 
-        for (let index = 0; index < 2; index++) {
-            let wallCoordinate = wallsRef.current[7].current[index].children[1].getBoundingClientRect()
-            if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
-                wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
-                wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
-                wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && wallsRef.current[7].current[index].children[1].style.visibility === "visible") {
-                setShell(null)
-                wallsRef.current[7].current[index].children[1].style.visibility = "hidden"
-            }
-        }
-
-        if (shellCoordinate.y < mapCoordinate.top ||
-            shellCoordinate.y > mapCoordinate.bottom ||
-            shellCoordinate.x < mapCoordinate.left ||
-            shellCoordinate.x > mapCoordinate.right) {
-            setShell(null)
-            tank === playerTank.current ? setShellFlying([false, shellFlying[1]]) : setShellFlying([shellFlying[0], false])
-            window.cancelAnimationFrame(af)
-            return
-        } else if (shellCoordinate.x < enemyTankCoordinate.x + enemyTankCoordinate.width &&
-            shellCoordinate.x + shellCoordinate.width > enemyTankCoordinate.x &&
-            shellCoordinate.y < enemyTankCoordinate.y + enemyTankCoordinate.height &&
-            shellCoordinate.height + shellCoordinate.y > enemyTankCoordinate.y) {
-            setShell(null)
-            tank === playerTank.current ? setShellFlying([false, shellFlying[1]]) : setShellFlying([shellFlying[0], false])
-            tank === playerTank.current ? setVisibility([visibility[0], "hidden"]) : setVisibility(["hidden", visibility[1]])
-            if (tank.getBoundingClientRect().x < mapRef.current.getBoundingClientRect().width / 2 + mapRef.current.getBoundingClientRect().x) {
-                dispatch(spawnRight())
-            } else {
-                dispatch(spawnLeft())
-            }
-            tank === playerTank.current ? setTankDestroyed([tankDestroyed[0], true]) : setTankDestroyed([true, tankDestroyed[1]])
-            setTimeout(() => {
-                tank === playerTank.current ? setVisibility([visibility[0], "visible"]) : setVisibility(["visible", visibility[1]])
-                tank === playerTank.current ? setEnemyRotation("180deg") : setPlayerRotation("0deg")
-                tank === playerTank.current ? setTankDestroyed([tankDestroyed[0], false]) : setTankDestroyed([false, tankDestroyed[1]])
-            }, 2000)
-
-            window.cancelAnimationFrame(af)
-        }
-        else if (tankCoordinate.y - mapCoordinate.y < mapCoordinate.height / 2 && (tankRotation === "90deg" || tankRotation === "270deg")) {
-            for (let index = 0; index < 2; index++) {
-                let wallCoordinate = wallsRef.current[7].current[0].children[0].children[index].getBoundingClientRect()
-                if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
-                    wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
-                    wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
-                    wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && wallsRef.current[7].current[0].children[0].children[index].style.visibility === "visible") {
-                    setShell(null)
-                    wallsRef.current[7].current[0].children[0].children[index].style.visibility = "hidden"
-                }
-            }
-            wallsRef.current.forEach((x, index) => {
-                if (index > 2) {
-                    return
-                }
-                x.current.forEach((y, id) => {
-                    let wallCoordinate = y.getBoundingClientRect()
-                    if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
-                        wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
-                        wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
-                        wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && y.style.visibility === "visible") {
-                        setShell(null)
-                        y.style.visibility = "hidden"
-                        x.current[id + 4].style.visibility = "hidden"
-                        x.current[id + 8].style.visibility = "hidden"
-                        x.current[id + 12].style.visibility = "hidden"
-
-                    }
-                })
-            })
-        } else if (tankCoordinate.y - mapCoordinate.y > mapCoordinate.height / 2 && (tankRotation === "90deg" || tankRotation === "270deg")) {
-            for (let index = 0; index < 2; index++) {
-                let wallCoordinate = wallsRef.current[7].current[1].children[0].children[index].getBoundingClientRect()
-                if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
-                    wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
-                    wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
-                    wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && wallsRef.current[7].current[1].children[0].children[index].style.visibility === "visible") {
-                    setShell(null)
-                    wallsRef.current[7].current[1].children[0].children[index].style.visibility = "hidden"
-                }
-            }
-            wallsRef.current.forEach((x, index) => {
-                if (index < 2 || index > 5) {
-                    return
-                }
-                x.current.forEach((y, i) => {
-                    let wallCoordinate = y.getBoundingClientRect()
-                    if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
-                        wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
-                        wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
-                        wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && y.style.visibility === "visible") {
-                        setShell(null)
-                        y.style.visibility = "hidden"
-                        x.current[i + 4].style.visibility = "hidden"
-                        x.current[i + 8].style.visibility = "hidden"
-                        x.current[i + 12].style.visibility = "hidden"
-
-                    }
-                })
-
-            })
-        } else if (tankRotation === "0deg" || tankRotation === "180deg") {
-            wallsRef.current.forEach((x, index) => {
-                if (index > 5) {
-                    return
-                }
-                x.current.forEach((y, i) => {
-                    let wallCoordinate = y.getBoundingClientRect()
-                    if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
-                        wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
-                        wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
-                        wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && y.style.visibility === "visible") {
-                        setShell(null)
-                        y.style.visibility = "hidden"
-                        x.current[i + 1].style.visibility = "hidden"
-                        x.current[i + 2].style.visibility = "hidden"
-                        x.current[i + 3].style.visibility = "hidden"
-                    }
-                })
-            })
-            for (let index = 0; index < 2; index++) {
-                let wallCoordinate = wallsRef.current[7].current[index].children[1].getBoundingClientRect()
-                if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
-                    wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
-                    wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
-                    wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && wallsRef.current[7].current[index].children[1].style.visibility === "visible") {
-                    setShell(null)
-                    wallsRef.current[7].current[index].children[1].style.visibility = "hidden"
-                }
-            }
-        } 
-
-    }
-    const fire = (tank) => {
-        if (tank === "player") {
-            playerShellRef.current = (<div ref={pShell => {
-                // SHELL COLLISION DETECTION WITH WALLS AND OBJECTS
-                if (pShell) {
-                    animate(pShell, enemyTank.current, playerTank.current, setPlayerShell, enemySpawnLeft, enemySpawnRight, currentPlayerRotationRef.current)
-                }
-            }} className='playerShell' style={shootDirection(tank, currentPlayerRotationRef)}></div>)
-            setPlayerShell(playerShellRef.current)
-            setShellFlying([true, shellFlying[1]])
-        } else if (tank === "enemy") {
-            enemyShellRef.current = (<div ref={eShell => {
-                // SHELL COLLISION DETECTION WITH WALLS AND OBJECTS
-                if (eShell) {
-                    animate(eShell, playerTank.current, enemyTank.current, setEnemyShell, playerSpawnLeft, playerSpawnRight, currentEnemyRotationRef.current)
-                }
-
-            }} className='enemyShell' style={shootDirection(tank, currentEnemyRotationRef)}></div>)
-            setEnemyShell(enemyShellRef.current)
-            setShellFlying([shellFlying[0], true])
-        }
-
-    }
-
-
 
     return (
         <div className='mapContainer'>
-            <div ref={mapRef} className='map'>
+            <div ref={mapRef} className='map' onKeyDown={move}>
                 <div>{playerShell}</div>
                 <div>{enemyShell}</div>
                 <div ref={playerTank} className='tank' style={{ marginLeft: `${movePlayerX}px`, marginTop: `${movePlayerY}px`, transform: `rotate(${playerRotation})`, visibility: visibility[0] }}  >
