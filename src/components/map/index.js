@@ -109,6 +109,9 @@ const Map = () => {
     const tankDestroyedRef = useRef()
     tankDestroyedRef.current = tankDestroyed
 
+    const messageRef = useRef()
+    messageRef.current = message
+
 
     const playerTank = useRef(null)
     const enemyTank = useRef(null)
@@ -272,7 +275,7 @@ const Map = () => {
             shellCoordinate.x < mapCoordinate.left ||
             shellCoordinate.x > mapCoordinate.right) {
             setShell(null)
-            tank === playerTank.current ? setShellFlying([false, shellFlying[1]]) : setShellFlying([shellFlying[0], false])
+            tank === playerTank.current ? setShellFlying([false, shellFlyingRef.current[1]]) : setShellFlying([shellFlyingRef.current[0], false])
             window.cancelAnimationFrame(af)
             return
         } else if (shellCoordinate.x < enemyTankCoordinate.x + enemyTankCoordinate.width &&
@@ -280,7 +283,7 @@ const Map = () => {
             shellCoordinate.y < enemyTankCoordinate.y + enemyTankCoordinate.height &&
             shellCoordinate.height + shellCoordinate.y > enemyTankCoordinate.y) {
             setShell(null)
-            tank === playerTank.current ? setShellFlying([false, shellFlying[1]]) : setShellFlying([shellFlying[0], false])
+            tank === playerTank.current ? setShellFlying([false, shellFlyingRef.current[1]]) : setShellFlying([shellFlyingRef.current[0], false])
             tank === playerTank.current ? setVisibility([visibility[0], "hidden"]) : setVisibility(["hidden", visibility[1]])
             if (tank.getBoundingClientRect().x < mapRef.current.getBoundingClientRect().width / 2 + mapRef.current.getBoundingClientRect().x) {
                 dispatch(spawnRight())
@@ -347,11 +350,13 @@ const Map = () => {
                         wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
                         wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
                         wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && y.style.visibility === "visible") {
-                        setShell(null)
-                        y.style.visibility = "hidden"
-                        x.current[i + 4].style.visibility = "hidden"
-                        x.current[i + 8].style.visibility = "hidden"
-                        x.current[i + 12].style.visibility = "hidden"
+                        try {
+                            setShell(null)
+                            y.style.visibility = "hidden"
+                            x.current[i + 4].style.visibility = "hidden"
+                            x.current[i + 8].style.visibility = "hidden"
+                            x.current[i + 12].style.visibility = "hidden"
+                        } catch(err) {console.log(err);}
 
                     }
                 })
@@ -388,7 +393,7 @@ const Map = () => {
             }
         }
 
-    }, [dispatch, shellFlying, tankDestroyed, visibility])
+    }, [dispatch, tankDestroyed, visibility])
 
     // FIRING SHELLS 
 
@@ -396,13 +401,13 @@ const Map = () => {
         if (tank === "player") {
             setPlayerShell(<div className={[tank + "Shell"]} style={{
                 marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
-                marginTop: currentShellPositionRef.current[tank + "MoveY"],
+                marginTop: currentShellPositionRef.current[tank + "MoveY"] + 8,
                 width: "8px"
             }}></div>)
         } else {
             setEnemyShell(<div className={[tank + "Shell"]} style={{
                 marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
-                marginTop: currentShellPositionRef.current[tank + "MoveY"],
+                marginTop: currentShellPositionRef.current[tank + "MoveY"] + 8,
                 width: "8px"
             }}></div>)
         }
@@ -417,7 +422,7 @@ const Map = () => {
                 }
             }} className='playerShell' style={shootDirection(tank, currentPlayerRotationRef)}></div>)
             setPlayerShell(playerShellRef.current)
-            setShellFlying([true, shellFlying[1]])
+            setShellFlying([true, shellFlyingRef.current[1]])
         } else if (tank === "enemy") {
             enemyShellRef.current = (<div ref={eShell => {
                 // SHELL COLLISION DETECTION WITH WALLS AND OBJECTS
@@ -427,15 +432,15 @@ const Map = () => {
 
             }} className='enemyShell' style={shootDirection(tank, currentEnemyRotationRef)}></div>)
             setEnemyShell(enemyShellRef.current)
-            setShellFlying([shellFlying[0], true])
+            setShellFlying([shellFlyingRef.current[0], true])
         }
         
-    }, [animate, shellFlying])
+    }, [animate])
     
     // TANK MOVEMENT CONTROLS AND COLLISION DETECTION
 
     const move = useCallback((event) => {
-        if (message) {
+        if (messageRef.current) {
             return
         }
         try {
@@ -455,36 +460,12 @@ const Map = () => {
         } catch (err) { }
 
         // FIRING CONTROLS
+        
         try {
-            if (keysPressed['Enter'] && keysPressed[' ']) {
-                if (shellFlyingRef.current[0] === true && shellFlyingRef.current[1] === true) {
-                    return
-                } 
-                if (shellFlyingRef.current[0] !== true) {
-                    keysPressed[event.key] = true
-                    setCurrentShellPosition(myStateRef.current)
-                    preFire("player")
-                    setTimeout(() => {
-                        fire("player")
-                    }, 4)
-                }
-                if (shellFlyingRef.current[1] !== true) {
-                    keysPressed[event.key] = true
-                    setCurrentShellPosition(myStateRef.current)
-                    preFire("enemy")
-                    setTimeout(() => {
-                        fire("enemy")
-                    }, 4)
-                }
-            }
-        } catch(err) {console.log(err);}
-
-        try {
-            if (event.key === 'Enter') {
+            if (keysPressed['Enter']) {
                 if (shellFlyingRef.current[0] === true) {
                     return
                 } else {
-                    keysPressed[event.key] = true
                     setCurrentShellPosition(myStateRef.current)
                 }
                 preFire("player")
@@ -492,11 +473,10 @@ const Map = () => {
             }
         } catch (err) { console.log(err);}
         try {
-            if (event.key === ' ') {
+            if (keysPressed[' ']) {
                 if (shellFlyingRef.current[1] === true) {
                     return
                 } else {
-                    keysPressed[event.key] = true
                     setCurrentShellPosition(myStateRef.current)
                 }
                 preFire("enemy")
@@ -695,7 +675,7 @@ const Map = () => {
             time.current = undefined
             return
         }
-    }, [dispatch, fire, message, keysPressed])
+    }, [dispatch, fire, keysPressed])
 
     // KEY UP DETECTION
     const keyUp = useCallback((event) => {
