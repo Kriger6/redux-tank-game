@@ -40,7 +40,8 @@
 /* TANKS */
 
 .tank {
-  background: #71784b;
+  background: url('https://img.icons8.com/ios-filled/50/000000/tank-top-view.png');
+  background-size: cover;
   width: 30px;
   height: 30px;
   margin-left: 130px;
@@ -48,8 +49,10 @@
   position: absolute;
 }
 
+
 .enemy {
-  background: #414b61;
+  background: url('https://img.icons8.com/ios-filled/50/000000/tank-top-view.png');
+  background-size: cover;
   width: 30px;
   height: 30px;
   margin-left: 330px;
@@ -63,10 +66,12 @@
   height: 17px;
   margin: auto;
   margin-top: -3px;
+  visibility: hidden;
 }
 
 .base1 {
-  background-color: aqua;
+  background: url('https://img.icons8.com/external-wanicon-two-tone-wanicon/64/null/external-eagle-independence-day-wanicon-two-tone-wanicon.png');
+  background-size: cover;
   width: 30px;
   height: 30px;
   margin-left: 235px;
@@ -75,7 +80,8 @@
 }
 
 .base2 {
-  background-color: brown;
+  background: url('https://img.icons8.com/external-wanicon-lineal-wanicon/64/null/external-eagle-independence-day-wanicon-lineal-wanicon.png');
+  background-size: cover;
   width: 30px;
   height: 30px;
   margin-left: 235px;
@@ -85,7 +91,7 @@
 .playerShell {
   background-color: rgb(3, 1, 1);
   width: 8px;
-  height: 15px;
+  height: 13px;
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
   margin: auto;
