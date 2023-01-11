@@ -2,6 +2,9 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import kd from 'keydrown'
 import { useSelector, useDispatch } from 'react-redux'
 import { v4 as uuidv4 } from 'uuid'
+import { checkWalls } from '../../utilites/walls_collision'
+import { checkEnemyX, checkEnemyY, checkPlayerX, checkPlayerY } from '../../utilites/tank_collision'
+import {shootDirection} from '../../utilites/shooting_direction'
 import Walls from '../walls/'
 import BaseWalls from '../base_walls'
 import GameOver from '../game_over'
@@ -83,16 +86,14 @@ const Map = () => {
             }}
                 ref={el => baseWallsRef.current[index] = el}
                 key={uuidv4()}>
-                <div style={{ backgroundColor: "rgba(49, 30, 20, 0.763)", width: "10px", height: "35px", visibility: "visible" }} ref={el => baseWallsRef.current[index] = el} key={uuidv4()}></div>
-                <div style={{
-                    backgroundColor: "rgba(49, 30, 20, 0.763)",
+                <div className='base-walls' style={{ width: "10px", height: "35px", visibility: "visible" }} ref={el => baseWallsRef.current[index] = el} key={uuidv4()}></div>
+                <div className='base-walls' style={{
                     width: "10px",
                     height: "35px",
                     visibility: "visible",
                     justifySelf: "end"
                 }} ref={el => baseWallsRef.current[index] = el} key={uuidv4()}></div>
-                <div style={{
-                    backgroundColor: "rgba(49, 30, 20, 0.763)",
+                <div className='base-walls' style={{
                     width: "60px",
                     height: "11px",
                     visibility: "visible",
@@ -117,7 +118,7 @@ const Map = () => {
 
     const playerShellRef = useRef()
     const enemyShellRef = useRef()
-    const shellFlyingRef = useRef(false)
+    const shellFlyingRef = useRef([false, false])
     shellFlyingRef.current = shellFlying
     const currentShellPositionRef = useRef()
     currentShellPositionRef.current = currentShellPosition
@@ -137,115 +138,10 @@ const Map = () => {
     const enemyTank = useRef(null)
     const mapRef = useRef(null)
 
-    // TANK TO INTERNAL WALLS COLLISON
-
-    const checkWalls = (operator, axis, tank) => {
-        let value = false
-        let tankCoordinate = tank.current.getBoundingClientRect()
-        wallsRef.current.forEach(x => {
-            x.current.forEach(y => {
-                let coordinate = y.getBoundingClientRect()
-                if (operator === "+" && axis === "x") {
-                    if (tankCoordinate.x + 2 < coordinate.x + coordinate.width &&
-                        tankCoordinate.x + 2 + tankCoordinate.width > coordinate.x &&
-                        tankCoordinate.y < coordinate.y + coordinate.height &&
-                        tankCoordinate.height + tankCoordinate.y > coordinate.y &&
-                        y.style.visibility === "visible") {
-                        value = true
-                    }
-                }
-                if (operator === "-" && axis === "x") {
-                    if (tankCoordinate.x - 2 < coordinate.x + coordinate.width &&
-                        tankCoordinate.x - 2 + tankCoordinate.width > coordinate.x &&
-                        tankCoordinate.y < coordinate.y + coordinate.height &&
-                        tankCoordinate.height + tankCoordinate.y > coordinate.y &&
-                        y.style.visibility === "visible") {
-                        value = true
-                    }
-                }
-                if (operator === "+" && axis === "y") {
-                    if (tankCoordinate.x < coordinate.x + coordinate.width &&
-                        tankCoordinate.x + tankCoordinate.width > coordinate.x &&
-                        tankCoordinate.y + 2 < coordinate.y + coordinate.height &&
-                        tankCoordinate.height + 2 + tankCoordinate.y > coordinate.y &&
-                        y.style.visibility === "visible") {
-                        value = true
-                    }
-                }
-                if (operator === "-" && axis === "y") {
-                    if (tankCoordinate.x < coordinate.x + coordinate.width &&
-                        tankCoordinate.x + tankCoordinate.width > coordinate.x &&
-                        tankCoordinate.y - 2 < coordinate.y + coordinate.height &&
-                        tankCoordinate.height - 2 + tankCoordinate.y > coordinate.y &&
-                        y.style.visibility === "visible") {
-                        value = true
-                    }
-                }
-            })
-        })
-        return value
-    }
-
-
-
     // TANK TO TANK COLLISION
 
 
-    const checkPlayerX = (operator) => {
-        if (operator === "+") {
-            if (Math.abs(myStateRef.current.playerMoveX + 2 - myStateRef.current.enemyMoveX) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
-                return true
-            }
-        } else {
-            if (Math.abs(myStateRef.current.playerMoveX - 2 - myStateRef.current.enemyMoveX) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
-                return true
-            }
-        }
-    }
-
-    const checkPlayerY = (operator) => {
-        if (operator === "+") {
-            if (Math.abs(myStateRef.current.playerMoveY + 2 - myStateRef.current.enemyMoveY) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
-                return true
-            }
-        } else {
-            if (Math.abs(myStateRef.current.playerMoveY - 2 - myStateRef.current.enemyMoveY) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
-                return true
-            }
-        }
-    }
-
-    const checkEnemyX = (operator) => {
-        if (operator === "+") {
-            if (Math.abs(myStateRef.current.enemyMoveX + 2 - myStateRef.current.playerMoveX) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
-                return true
-            }
-        } else {
-            if (Math.abs(myStateRef.current.enemyMoveX - 2 - myStateRef.current.playerMoveX) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveY - myStateRef.current.enemyMoveY) >= 30) {
-                return true
-            }
-        }
-    }
-
-    const checkEnemyY = (operator) => {
-        if (operator === "+") {
-            if (Math.abs(myStateRef.current.enemyMoveY + 2 - myStateRef.current.playerMoveY) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
-                return true
-            }
-        } else {
-            if (Math.abs(myStateRef.current.enemyMoveY - 2 - myStateRef.current.playerMoveY) >= 30 ||
-                Math.abs(myStateRef.current.playerMoveX - myStateRef.current.enemyMoveX) >= 30) {
-                return true
-            }
-        }
-    }
+    
 
 
     // ANIMATE SHELL COLLISION WITH OBJECTS
@@ -279,7 +175,7 @@ const Map = () => {
                     }
                 }
             }
-        } catch (err) { }
+        } catch (err) { console.log(err); }
 
         if (shellCoordinate.top < mapCoordinate.top ||
             shellCoordinate.bottom > mapCoordinate.bottom ||
@@ -435,7 +331,7 @@ const Map = () => {
                 if (pShell) {
                     animate(pShell, enemyTank.current, playerTank.current, setPlayerShell, enemySpawnLeft, enemySpawnRight, currentPlayerRotationRef.current)
                 }
-            }} className='playerShell' style={shootDirection(tank, currentPlayerRotationRef)}></div>)
+            }} className='playerShell' style={shootDirection(tank, currentPlayerRotationRef, currentShellPositionRef)}></div>)
             setPlayerShell(playerShellRef.current)
             setShellFlying([true, shellFlyingRef.current[1]])
         } else if (tank === "enemy") {
@@ -445,7 +341,7 @@ const Map = () => {
                     animate(eShell, playerTank.current, enemyTank.current, setEnemyShell, playerSpawnLeft, playerSpawnRight, currentEnemyRotationRef.current)
                 }
 
-            }} className='enemyShell' style={shootDirection(tank, currentEnemyRotationRef)}></div>)
+            }} className='enemyShell' style={shootDirection(tank, currentEnemyRotationRef, currentShellPositionRef)}></div>)
             setEnemyShell(enemyShellRef.current)
             setShellFlying([shellFlyingRef.current[0], true])
         }
@@ -455,7 +351,7 @@ const Map = () => {
     // TANK MOVEMENT CONTROLS AND COLLISION DETECTION
 
     kd.ENTER.down(() => {
-        if (shellFlyingRef.current[0] === true) {
+        if (playerShell !== null) {
             return
         } else {
             setCurrentShellPosition(myStateRef.current)
@@ -465,7 +361,7 @@ const Map = () => {
     })
 
     kd.SPACE.down(() => {
-        if (shellFlyingRef.current[1] === true) {
+        if (enemyShell !== null) {
             return
         } else {
             setCurrentShellPosition(myStateRef.current)
@@ -475,56 +371,56 @@ const Map = () => {
     })
 
     kd.LEFT.down(() => {
-        if (checkPlayerX() && tankDestroyedRef.current[0] === false && checkWalls("-", "x", playerTank) !== true) {
+        if (checkPlayerX("-", myStateRef) && tankDestroyedRef.current[0] === false && checkWalls(wallsRef, "-", "x", playerTank) !== true) {
             dispatch(playerMoveLeft())
         }
         setPlayerRotation("270deg")
     })
 
     kd.RIGHT.down(() => {
-        if (checkPlayerX("+") && tankDestroyedRef.current[0] === false && checkWalls("+", "x", playerTank) !== true) {
+        if (checkPlayerX("+", myStateRef) && tankDestroyedRef.current[0] === false && checkWalls(wallsRef, "+", "x", playerTank) !== true) {
             dispatch(playerMoveRight())
         }
         setPlayerRotation("90deg")
     })
 
     kd.UP.down(() => {
-        if (checkPlayerY() && tankDestroyedRef.current[0] === false && checkWalls("-", "y", playerTank) !== true) {
+        if (checkPlayerY("-", myStateRef) && tankDestroyedRef.current[0] === false && checkWalls(wallsRef, "-", "y", playerTank) !== true) {
             dispatch(playerMoveUp())
         }
         setPlayerRotation("0deg")
     })
 
     kd.DOWN.down(() => {
-        if (checkPlayerY("+") && tankDestroyedRef.current[0] === false && checkWalls("+", "y", playerTank) !== true) {
+        if (checkPlayerY("+", myStateRef) && tankDestroyedRef.current[0] === false && checkWalls(wallsRef, "+", "y", playerTank) !== true) {
             dispatch(playerMoveDown())
         }
         setPlayerRotation("180deg")
     })
 
     kd.W.down(() => {
-        if (checkEnemyY() && tankDestroyedRef.current[1] === false && checkWalls("-", "y", enemyTank) !== true) {
+        if (checkEnemyY("-", myStateRef) && tankDestroyedRef.current[1] === false && checkWalls(wallsRef, "-", "y", enemyTank) !== true) {
             dispatch(enemyMoveUp())
         }
         setEnemyRotation("0deg")
     })
 
     kd.S.down(() => {
-        if (checkEnemyY("+") && tankDestroyedRef.current[1] === false && checkWalls("+", "y", enemyTank) !== true) {
+        if (checkEnemyY("+", myStateRef) && tankDestroyedRef.current[1] === false && checkWalls(wallsRef, "+", "y", enemyTank) !== true) {
             dispatch(enemyMoveDown())
         }
         setEnemyRotation("180deg")
     })
 
     kd.D.down(() => {
-        if (checkEnemyX("+") && tankDestroyedRef.current[1] === false && checkWalls("+", "x", enemyTank) !== true) {
+        if (checkEnemyX("+", myStateRef) && tankDestroyedRef.current[1] === false && checkWalls(wallsRef, "+", "x", enemyTank) !== true) {
             dispatch(enemyMoveRight())
         }
         setEnemyRotation("90deg")
     })
 
     kd.A.down(() => {
-        if (checkEnemyX() && tankDestroyedRef.current[1] === false && checkWalls("-", "x", enemyTank) !== true) {
+        if (checkEnemyX("-", myStateRef) && tankDestroyedRef.current[1] === false && checkWalls(wallsRef, "-", "x", enemyTank) !== true) {
             dispatch(enemyMoveLeft())
         }
         setEnemyRotation("270deg")
@@ -538,36 +434,8 @@ const Map = () => {
     }, [])
 
 
-    // SHOOTING DIRECTIONS 
 
-    const shootDirection = (tank, rotation) => {
-        if (rotation.current === "0deg") {
-            return {
-                marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
-                marginTop: currentShellPositionRef.current[tank + "MoveY"] - 490,
-            }
-
-        } else if (rotation.current === "180deg") {
-            return {
-                marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 11,
-                marginTop: currentShellPositionRef.current[tank + "MoveY"] + 442,
-                transform: `rotate(180deg)`
-            }
-
-        } else if (rotation.current === "90deg") {
-            return {
-                marginLeft: currentShellPositionRef.current[tank + "MoveX"] + 490,
-                marginTop: currentShellPositionRef.current[tank + "MoveY"] + 7,
-                transform: `rotate(90deg)`
-            }
-        } else if (rotation.current === "270deg") {
-            return {
-                marginLeft: currentShellPositionRef.current[tank + "MoveX"] - 490,
-                marginTop: currentShellPositionRef.current[tank + "MoveY"] + 7,
-                transform: `rotate(270deg)`
-            }
-        }
-    }
+    
 
 
     return (

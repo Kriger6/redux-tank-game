@@ -40,7 +40,7 @@
 /* TANKS */
 
 .tank {
-  background: url('https://img.icons8.com/ios-filled/50/000000/tank-top-view.png');
+  background: url('assets/icons8-tank-top-view-50.png');
   background-size: cover;
   width: 30px;
   height: 30px;
@@ -51,7 +51,7 @@
 
 
 .enemy {
-  background: url('https://img.icons8.com/ios-filled/50/000000/tank-top-view.png');
+  background: url('assets/icons8-tank-top-view-50\ \(1\).png');
   background-size: cover;
   width: 30px;
   height: 30px;
@@ -121,9 +121,15 @@
 }
 
 .wall {
-  background-color: rgba(49, 30, 20, 0.763);
+  background: url('assets/icons8-brick-wall-48.png');
+  background-size: cover;  
   width: 20px;
   height: 20px;
+}
+
+.base-walls {
+  background: url('assets/icons8-brick-wall-48.png');
+  background-size: cover;
 }
 
 .box-container {
