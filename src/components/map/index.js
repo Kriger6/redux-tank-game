@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { v4 as uuidv4 } from 'uuid'
 import { checkWalls } from '../../utilites/walls_collision'
 import { checkEnemyX, checkEnemyY, checkPlayerX, checkPlayerY } from '../../utilites/tank_collision'
-import {shootDirection} from '../../utilites/shooting_direction'
+import { shootDirection } from '../../utilites/shooting_direction'
 import Walls from '../walls/'
 import BaseWalls from '../base_walls'
 import GameOver from '../game_over'
@@ -24,6 +24,7 @@ import {
 } from '../../actions'
 import Player from '../player'
 import Enemy from '../enemy'
+import { shellHitBase, shellHitBoundary, shellHitTank } from '../../utilites/shell_hit'
 
 const Map = () => {
 
@@ -79,21 +80,21 @@ const Map = () => {
     baseWalls = Array.from(baseWalls, (x, index) => {
         return (
             <div style={{
-                visibility: "visible",
+                // visibility: "visible",
                 display: "grid",
                 gridTemplateRows: "35px 10px",
                 gridTemplateColumns: 'repeat(2, 30px)'
             }}
                 ref={el => baseWallsRef.current[index] = el}
                 key={uuidv4()}>
-                <div className='base-walls' style={{ width: "10px", height: "35px", visibility: "visible" }} ref={el => baseWallsRef.current[index] = el} key={uuidv4()}></div>
-                <div className='base-walls' style={{
+                <div className='base-walls' id='brick' style={{ width: "10px", height: "35px", visibility: "visible" }} ref={el => baseWallsRef.current[index] = el} key={uuidv4()}></div>
+                <div className='base-walls' id='brick' style={{
                     width: "10px",
                     height: "35px",
                     visibility: "visible",
                     justifySelf: "end"
                 }} ref={el => baseWallsRef.current[index] = el} key={uuidv4()}></div>
-                <div className='base-walls' style={{
+                <div className='base-walls' id='brick' style={{
                     width: "60px",
                     height: "11px",
                     visibility: "visible",
@@ -141,7 +142,7 @@ const Map = () => {
     // TANK TO TANK COLLISION
 
 
-    
+
 
 
     // ANIMATE SHELL COLLISION WITH OBJECTS
@@ -156,57 +157,17 @@ const Map = () => {
             animate(shell, enemyTank, tank, setShell, spawnLeft, spawnRight, tankRotation)
         })
 
-        try {
-            for (let index = 0; index < 2; index++) {
-                let wallCoordinate = wallsRef.current[6].current[index].getBoundingClientRect()
-                if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
-                    wallCoordinate.x + wallCoordinate.width > shellCoordinate.x &&
-                    wallCoordinate.y < shellCoordinate.y + shellCoordinate.height &&
-                    wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && wallsRef.current[6].current[index].style.visibility === "visible") {
-                    setShell(null)
-                    wallsRef.current[6].current[index].style.visibility = "hidden"
-                    kd.stop()
-                    if (index === 0) {
-                        setMessage("Enemy wins! Click on the button to restart the game")
+        shellHitBase(wallsRef, shellCoordinate, setShell, kd, setMessage)
 
+        shellHitBoundary(shellCoordinate, mapCoordinate, setShell, tank, playerTank, setShellFlying, shellFlyingRef, af)
 
-                    } else {
-                        setMessage("Player wins! Click on the button to restart the game")
-                    }
-                }
-            }
-        } catch (err) { console.log(err); }
+        shellHitTank(shellCoordinate, enemyTankCoordinate, setShell, tank,
+            playerTank, setShellFlying, shellFlyingRef, setVisibility, visibility, mapRef,
+            dispatch, spawnRight, spawnLeft, setTankDestroyed, tankDestroyed, setEnemyRotation,
+            setPlayerRotation, af)
 
-        if (shellCoordinate.top < mapCoordinate.top ||
-            shellCoordinate.bottom > mapCoordinate.bottom ||
-            shellCoordinate.x < mapCoordinate.left ||
-            shellCoordinate.right > mapCoordinate.right) {
-            setShell(null)
-            tank === playerTank.current ? setShellFlying([false, shellFlyingRef.current[1]]) : setShellFlying([shellFlyingRef.current[0], false])
-            window.cancelAnimationFrame(af)
-            return
-        } else if (shellCoordinate.x < enemyTankCoordinate.x + enemyTankCoordinate.width &&
-            shellCoordinate.x + shellCoordinate.width > enemyTankCoordinate.x &&
-            shellCoordinate.y < enemyTankCoordinate.y + enemyTankCoordinate.height &&
-            shellCoordinate.height + shellCoordinate.y > enemyTankCoordinate.y) {
-            setShell(null)
-            tank === playerTank.current ? setShellFlying([false, shellFlyingRef.current[1]]) : setShellFlying([shellFlyingRef.current[0], false])
-            tank === playerTank.current ? setVisibility([visibility[0], "hidden"]) : setVisibility(["hidden", visibility[1]])
-            if (tank.getBoundingClientRect().x < mapRef.current.getBoundingClientRect().width / 2 + mapRef.current.getBoundingClientRect().x) {
-                dispatch(spawnRight())
-            } else {
-                dispatch(spawnLeft())
-            }
-            tank === playerTank.current ? setTankDestroyed([tankDestroyed[0], true]) : setTankDestroyed([true, tankDestroyed[1]])
-            setTimeout(() => {
-                tank === playerTank.current ? setVisibility([visibility[0], "visible"]) : setVisibility(["visible", visibility[1]])
-                tank === playerTank.current ? setEnemyRotation("180deg") : setPlayerRotation("0deg")
-                tank === playerTank.current ? setTankDestroyed([tankDestroyed[0], false]) : setTankDestroyed([false, tankDestroyed[1]])
-            }, 2000)
-
-            window.cancelAnimationFrame(af)
-        }
-        else if (tankCoordinate.y - mapCoordinate.y < mapCoordinate.height / 2 && (tankRotation === "90deg" || tankRotation === "270deg")) {
+        
+        if (tankCoordinate.y - mapCoordinate.y < mapCoordinate.height / 2 && (tankRotation === "90deg" || tankRotation === "270deg")) {
             for (let index = 0; index < 3; index++) {
                 let wallCoordinate = wallsRef.current[7].current[0].children[index].getBoundingClientRect()
                 if (wallCoordinate.x < shellCoordinate.x + shellCoordinate.width &&
@@ -284,9 +245,6 @@ const Map = () => {
                         wallCoordinate.height + wallCoordinate.y > shellCoordinate.y && y.style.visibility === "visible") {
                         setShell(null)
                         y.style.visibility = "hidden"
-                        x.current[i + 1].style.visibility = "hidden"
-                        x.current[i + 2].style.visibility = "hidden"
-                        x.current[i + 3].style.visibility = "hidden"
                     }
                 })
             })
@@ -435,7 +393,7 @@ const Map = () => {
 
 
 
-    
+
 
 
     return (
