@@ -1,25 +1,25 @@
 export const checkWalls = (wallsRef, operator, axis, tank) => {
     let tankCoordinate = tank.current.getBoundingClientRect()
-    let value = false
-    wallsRef.current.some((x, index) => {
+    return wallsRef.current.some((x, index) => {
         return x.current.some((y) => {
+            let value
             let coordinate = y.getBoundingClientRect()
             if (index < 7) {
                 let result = collisionDetection(operator, axis, tankCoordinate, coordinate, y)
                 result === true ? value = true : value = false
-                return result
+                return value
             }
             if (index === 7) {
-                Array.from(y.children).some(z => {
-                    // console.log(z);
-                    let rezult = collisionDetection(operator, axis, tankCoordinate, coordinate, z)
+                return Array.from(y.children).some(z => {
+                    let baseCoordinate = z.getBoundingClientRect()
+                    let rezult = collisionDetection(operator, axis, tankCoordinate, baseCoordinate, z)
                     rezult === true ? value = true : value = false
-                    return rezult
+                    return value
                 })
             }
+            return value
         })
     })
-    return value
 }
 
 function collisionDetection(operator, axis, tankCoordinate, coordinate, y) {
@@ -29,8 +29,8 @@ function collisionDetection(operator, axis, tankCoordinate, coordinate, y) {
             tankCoordinate.y < coordinate.y + coordinate.height &&
             tankCoordinate.height + tankCoordinate.y > coordinate.y &&
             y.style.visibility === "visible") {
-            return true
-        }
+            return true 
+        } 
     }
     if (operator === "-" && axis === "x") {
         if (tankCoordinate.x - 2 < coordinate.x + coordinate.width &&
