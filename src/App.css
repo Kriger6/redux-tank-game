@@ -152,6 +152,10 @@
   background-color: rgb(188, 188, 188);
 }
 
-.message-container h1 {
+.message-container h2 {
   text-align: center;
+}
+
+.message-container {
+  border: 1px black solid;
 }
